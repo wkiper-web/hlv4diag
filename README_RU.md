@@ -161,16 +161,6 @@ python -m meshtastic --port COM4 --info
 
 - `meshtastic-onemesh-yar-current-2026-04-05.yaml`
 
-## Как выложить это на GitHub
-
-Если локальный репозиторий уже создан, дальше обычно так:
-
-```powershell
-git remote add origin https://github.com/USERNAME/REPO.git
-git branch -M main
-git push -u origin main
-```
-
 ## Примечания
 
 - `onemesh-map.html`, `onemesh-mqtt.html` и `onemesh-v2.1.7.min.js` сохранены как локальные снапшоты во время диагностики.

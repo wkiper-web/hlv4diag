@@ -160,16 +160,6 @@ As of `2026-04-05`, the board was returned to:
 - `configOkToMqtt = true`
 - `module_config.mqtt.enabled = false`
 
-## Publishing to GitHub
-
-If your local repo is already initialized:
-
-```powershell
-git remote add origin https://github.com/USERNAME/REPO.git
-git branch -M main
-git push -u origin main
-```
-
 ## Notes
 
 - `onemesh-map.html`, `onemesh-mqtt.html`, and `onemesh-v2.1.7.min.js` are
