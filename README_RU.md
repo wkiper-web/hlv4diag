@@ -22,7 +22,7 @@
 - `meshtastic-onemesh-yar-2026-04-05.yaml`
   Один из рабочих конфигов для OneMesh.
 - `meshtastic-onemesh-yar-current-2026-04-05.yaml`
-  Актуальный конфиг восстановленного состояния.
+  Пример конфига Meshtastic для `RU / MEDIUM_FAST`.
 - `firmware_restore/firmware-heltec-v4-2.7.18.fb3bf78.factory.bin`
   Локальный `factory.bin` Meshtastic для восстановления платы.
 - `docs/DIAGNOSTICS.md`
@@ -134,7 +134,7 @@ python tools\meshtastic_diag.py --port COM4 --root-topic msh/RU/YAR
 python C:\Users\Admin\.platformio\packages\tool-esptoolpy\esptool.py --chip esp32s3 --port COM4 --baud 921600 write_flash 0x0 firmware_restore\firmware-heltec-v4-2.7.18.fb3bf78.factory.bin
 ```
 
-### 2. Применить готовый конфиг
+### 2. Применить конфиг
 
 ```powershell
 python -m meshtastic --port COM4 --configure meshtastic-onemesh-yar-current-2026-04-05.yaml
@@ -145,21 +145,6 @@ python -m meshtastic --port COM4 --configure meshtastic-onemesh-yar-current-2026
 ```powershell
 python -m meshtastic --port COM4 --info
 ```
-
-## Текущее восстановленное состояние
-
-На `2026-04-05` плата была возвращена в такое состояние:
-
-- firmware: `2.7.18.fb3bf78`
-- region: `RU`
-- preset: `MEDIUM_FAST`
-- hop limit: `7`
-- `configOkToMqtt = true`
-- `module_config.mqtt.enabled = false`
-
-Актуальный YAML:
-
-- `meshtastic-onemesh-yar-current-2026-04-05.yaml`
 
 ## Примечания
 

@@ -59,7 +59,7 @@ python -m pip install platformio
 - `meshtastic-onemesh-yar-2026-04-05.yaml`
   Earlier OneMesh config used during testing.
 - `meshtastic-onemesh-yar-current-2026-04-05.yaml`
-  Current restored Meshtastic config.
+  Example Meshtastic config for `RU / MEDIUM_FAST`.
 - `firmware_restore/firmware-heltec-v4-2.7.18.fb3bf78.factory.bin`
   Local factory image used to restore the board.
 - `docs/DIAGNOSTICS.md`
@@ -137,7 +137,7 @@ Flash the factory image:
 python C:\Users\Admin\.platformio\packages\tool-esptoolpy\esptool.py --chip esp32s3 --port COM4 --baud 921600 write_flash 0x0 firmware_restore\firmware-heltec-v4-2.7.18.fb3bf78.factory.bin
 ```
 
-Apply the current config:
+Apply the config:
 
 ```powershell
 python -m meshtastic --port COM4 --configure meshtastic-onemesh-yar-current-2026-04-05.yaml
@@ -148,17 +148,6 @@ Verify:
 ```powershell
 python -m meshtastic --port COM4 --info
 ```
-
-## Restored board state
-
-As of `2026-04-05`, the board was returned to:
-
-- firmware: `2.7.18.fb3bf78`
-- region: `RU`
-- preset: `MEDIUM_FAST`
-- hop limit: `7`
-- `configOkToMqtt = true`
-- `module_config.mqtt.enabled = false`
 
 ## Notes
 
