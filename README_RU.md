@@ -17,12 +17,8 @@
   Диагностический скетч для прямой проверки SX1262 и RF-тракта.
 - `tools/meshtastic_diag.py`
   Хостовый скрипт для проверки `ACK`, `traceroute` и контрольного broadcast через ONEmesh API.
-- `meshtastic-backup-2026-04-05.yaml`
-  Резервная копия конфигурации Meshtastic до изменений.
-- `meshtastic-onemesh-yar-2026-04-05.yaml`
-  Один из рабочих конфигов для OneMesh.
-- `meshtastic-onemesh-yar-current-2026-04-05.yaml`
-  Пример конфига Meshtastic для `RU / MEDIUM_FAST`.
+- `meshtastic-config.example.yaml`
+  Безопасный пример конфига Meshtastic для `RU / MEDIUM_FAST`.
 - `firmware_restore/firmware-heltec-v4-2.7.18.fb3bf78.factory.bin`
   Локальный `factory.bin` Meshtastic для восстановления платы.
 - `docs/DIAGNOSTICS.md`
@@ -137,7 +133,7 @@ python C:\Users\Admin\.platformio\packages\tool-esptoolpy\esptool.py --chip esp3
 ### 2. Применить конфиг
 
 ```powershell
-python -m meshtastic --port COM4 --configure meshtastic-onemesh-yar-current-2026-04-05.yaml
+python -m meshtastic --port COM4 --configure meshtastic-config.example.yaml
 ```
 
 ### 3. Проверить, что нода поднялась

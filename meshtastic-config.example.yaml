@@ -1,0 +1,61 @@
+# Example Meshtastic config for Heltec V4 in RU / MEDIUM_FAST.
+# Replace owner, position, Bluetooth PIN, channel URL, and any MQTT settings
+# with your own values before applying it to a device.
+owner: ExampleNode
+owner_short: EXMP
+channel_url: https://meshtastic.org/e/#CgcSAQE6AggNEhgIARAEGPoBIAsoBTgDQAdIAVAUaAHIBgE
+location:
+  alt: 0
+  lat: 0.0
+  lon: 0.0
+config:
+  bluetooth:
+    enabled: true
+    fixedPin: 123456
+  device:
+    ledHeartbeatDisabled: true
+    nodeInfoBroadcastSecs: 10800
+    tzdef: GMT-3
+  display:
+    screenOnSecs: 600
+  lora:
+    bandwidth: 250
+    codingRate: 5
+    configOkToMqtt: true
+    hopLimit: 7
+    modemPreset: MEDIUM_FAST
+    region: RU
+    spreadFactor: 11
+    sx126xRxBoostedGain: true
+    txEnabled: true
+    txPower: 20
+    usePreset: true
+  network:
+    ntpServer: meshtastic.pool.ntp.org
+  position:
+    broadcastSmartMinimumDistance: 100
+    broadcastSmartMinimumIntervalSecs: 300
+    fixedPosition: false
+    gpsEnGpio: 34
+    gpsMode: ENABLED
+    gpsUpdateInterval: 120
+    positionBroadcastSecs: 3600
+    positionBroadcastSmartEnabled: true
+    positionFlags: 811
+  power:
+    lsSecs: 300
+    minWakeSecs: 10
+    sdsSecs: 4294967295
+    waitBluetoothSecs: 60
+module_config:
+  mqtt:
+    address: mqtt.example.org
+    username: your-user
+    password: your-password
+    encryptionEnabled: true
+    root: msh/RU/YAR
+    enabled: false
+    jsonEnabled: false
+    tlsEnabled: true
+    proxyToClientEnabled: true
+    mapReportingEnabled: true

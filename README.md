@@ -54,12 +54,8 @@ python -m pip install platformio
 - `tools/meshtastic_diag.py`
   Host-side script for `ACK`, `traceroute`, and control broadcast checks
   against ONEmesh.
-- `meshtastic-backup-2026-04-05.yaml`
-  Config backup exported before changes.
-- `meshtastic-onemesh-yar-2026-04-05.yaml`
-  Earlier OneMesh config used during testing.
-- `meshtastic-onemesh-yar-current-2026-04-05.yaml`
-  Example Meshtastic config for `RU / MEDIUM_FAST`.
+- `meshtastic-config.example.yaml`
+  Safe example Meshtastic config for `RU / MEDIUM_FAST`.
 - `firmware_restore/firmware-heltec-v4-2.7.18.fb3bf78.factory.bin`
   Local factory image used to restore the board.
 - `docs/DIAGNOSTICS.md`
@@ -140,7 +136,7 @@ python C:\Users\Admin\.platformio\packages\tool-esptoolpy\esptool.py --chip esp3
 Apply the config:
 
 ```powershell
-python -m meshtastic --port COM4 --configure meshtastic-onemesh-yar-current-2026-04-05.yaml
+python -m meshtastic --port COM4 --configure meshtastic-config.example.yaml
 ```
 
 Verify:
