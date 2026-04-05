@@ -1,152 +1,157 @@
 # Heltec V4 Meshtastic / LoRa Diagnostics
 
-Набор файлов для диагностики `Heltec V4`, если нода:
+Diagnostic toolkit for `Heltec V4` nodes that can hear the LoRa mesh but do not
+get reliable replies back from neighboring Meshtastic nodes.
 
-- слышит эфир LoRa
-- видит соседей в Meshtastic
-- но не получает `ACK`, не строит `traceroute` или выглядит как нода с плохим `TX`
+This repository includes:
 
-Репозиторий подходит для двух сценариев:
+- a raw-radio diagnostic sketch for `Heltec V4`
+- a host-side Meshtastic network check script
+- saved Meshtastic configs used during recovery
+- a local Meshtastic `factory.bin` for restoring the board
 
-1. Проверить сам радиотракт через специальный диагностический скетч.
-2. Вернуть плату на Meshtastic и прогнать проверки уже в реальной сети.
+Russian instructions:
 
-## Что внутри
+- [README_RU.md](README_RU.md)
 
-- `src/main.cpp`
-  Диагностический скетч для прямой проверки SX1262 и RF-тракта.
-- `tools/meshtastic_diag.py`
-  Хостовый скрипт для проверки `ACK`, `traceroute` и контрольного broadcast через ONEmesh API.
-- `meshtastic-backup-2026-04-05.yaml`
-  Резервная копия конфигурации Meshtastic до изменений.
-- `meshtastic-onemesh-yar-2026-04-05.yaml`
-  Один из рабочих конфигов для OneMesh.
-- `meshtastic-onemesh-yar-current-2026-04-05.yaml`
-  Актуальный конфиг восстановленного состояния.
-- `firmware_restore/firmware-heltec-v4-2.7.18.fb3bf78.factory.bin`
-  Локальный `factory.bin` Meshtastic для восстановления платы.
-- `docs/DIAGNOSTICS.md`
-  Короткое описание, что именно проверялось и к каким выводам это привело.
+## Use cases
 
-## Что нужно пользователю
+This project is useful when a node:
 
-Минимум:
+- hears LoRa traffic
+- sees neighbors in Meshtastic
+- but fails on `ACK`, `traceroute`, or looks suspicious on transmit
+
+There are two main workflows:
+
+1. Flash the diagnostic sketch and test the RF path directly.
+2. Restore Meshtastic and run real network checks against nearby nodes.
+
+## Requirements
 
 - Windows
 - Python `3.10+`
-- установленный `Git`
-- установленный `PlatformIO Core`
-- доступ к USB-порту платы
+- Git
+- PlatformIO Core
+- USB access to the board
 
-Для хостового скрипта:
-
-- `meshtastic`
-- `requests`
-
-Установка Python-зависимостей:
+Python dependencies:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-Установка PlatformIO Core:
+Install PlatformIO Core:
 
 ```powershell
 python -m pip install platformio
 ```
 
-## Быстрый старт
+## Repository layout
 
-### Вариант 1. Просто прошить диагностический скетч
+- `src/main.cpp`
+  Raw LoRa diagnostic sketch for direct SX1262 / RF-path testing.
+- `tools/meshtastic_diag.py`
+  Host-side script for `ACK`, `traceroute`, and control broadcast checks
+  against ONEmesh.
+- `meshtastic-backup-2026-04-05.yaml`
+  Config backup exported before changes.
+- `meshtastic-onemesh-yar-2026-04-05.yaml`
+  Earlier OneMesh config used during testing.
+- `meshtastic-onemesh-yar-current-2026-04-05.yaml`
+  Current restored Meshtastic config.
+- `firmware_restore/firmware-heltec-v4-2.7.18.fb3bf78.factory.bin`
+  Local factory image used to restore the board.
+- `docs/DIAGNOSTICS.md`
+  Summary of checks and findings.
+- `docs/GITHUB_METADATA.md`
+  Suggested GitHub description, About text, and topics.
 
-1. Подключить `Heltec V4` по USB.
-2. Проверить номер порта, например `COM4`.
-3. При необходимости поправить порт в `platformio.ini`.
-4. Собрать прошивку:
+## Flashing the diagnostic sketch
+
+1. Connect the board over USB.
+2. Check the serial port, for example `COM4`.
+3. If needed, update `platformio.ini`.
+4. Build:
 
 ```powershell
 python -m platformio run
 ```
 
-5. Залить на плату:
+5. Upload:
 
 ```powershell
 python -m platformio run -t upload
 ```
 
-6. Открыть монитор:
+6. Open serial monitor:
 
 ```powershell
 python -m platformio device monitor
 ```
 
-### Вариант 2. Оставить Meshtastic и проверить сеть
+## Diagnostic sketch commands
 
-Если на плате уже установлен Meshtastic:
+- `1` / `2` / `3` - select profile
+- `c` - CAD scan all profiles
+- `r` - RX on active profile
+- `a` - RX on all profiles
+- `g` - boosted RX on active profile
+- `s` - sync-word sweep (`0x12` and `0x34`)
+- `t` - send one packet
+- `b` - send TX burst
+- `p` - TX power sweep
+- `w` - 8-second continuous carrier
+- `x` - full diagnostic cycle
+- `i` - show current status
+- `h` - help
+
+Most useful commands:
+
+- `c` to confirm LoRa activity on the expected frequencies
+- `p` when you have an SDR, tinySA, or a second LoRa board nearby
+- `w` when you want the cleanest proof that the board is radiating
+
+## Meshtastic network checks
+
+When the board is already running Meshtastic:
 
 ```powershell
 python tools\meshtastic_diag.py --port COM4 --root-topic msh/RU/YAR
 ```
 
-Скрипт:
+The script:
 
-- подключается к ноде
-- выбирает подходящего соседа
-- отправляет сообщение с `ACK`
-- делает `traceroute`
-- шлёт контрольный broadcast
-- проверяет, появился ли он через ONEmesh API
+- connects to the node
+- selects a suitable neighbor
+- sends a message with `ACK`
+- runs `traceroute`
+- sends a control broadcast
+- checks whether ONEmesh sees that broadcast
 
-## Команды диагностического скетча
+## Restoring Meshtastic
 
-После прошивки `src/main.cpp` доступны команды по serial:
-
-- `1` / `2` / `3` - выбрать профиль
-- `c` - CAD scan по всем профилям
-- `r` - RX на активном профиле
-- `a` - RX по всем профилям
-- `g` - boosted RX на активном профиле
-- `s` - sync-word sweep (`0x12` и `0x34`)
-- `t` - отправить один пакет
-- `b` - отправить серию пакетов
-- `p` - power sweep от `2` до `20 dBm`
-- `w` - непрерывная несущая `CW` на `8 секунд`
-- `x` - полный цикл диагностики
-- `i` - текущий статус
-- `h` - помощь
-
-### Что особенно полезно
-
-- `c`
-  Показывает, есть ли вообще LoRa-активность на нужных частотах.
-- `p`
-  Полезен, если рядом есть SDR, tinySA или вторая LoRa-нода.
-- `w`
-  Лучший тест, если нужно понять, излучает ли плата в эфир вообще.
-
-## Восстановление Meshtastic
-
-### 1. Залить factory firmware
+Flash the factory image:
 
 ```powershell
 python C:\Users\Admin\.platformio\packages\tool-esptoolpy\esptool.py --chip esp32s3 --port COM4 --baud 921600 write_flash 0x0 firmware_restore\firmware-heltec-v4-2.7.18.fb3bf78.factory.bin
 ```
 
-### 2. Применить готовый конфиг
+Apply the current config:
 
 ```powershell
 python -m meshtastic --port COM4 --configure meshtastic-onemesh-yar-current-2026-04-05.yaml
 ```
 
-### 3. Проверить, что нода поднялась
+Verify:
 
 ```powershell
 python -m meshtastic --port COM4 --info
 ```
 
-## Текущее восстановленное состояние
+## Restored board state
 
-На `2026-04-05` плата была возвращена в такое состояние:
+As of `2026-04-05`, the board was returned to:
 
 - firmware: `2.7.18.fb3bf78`
 - region: `RU`
@@ -155,19 +160,9 @@ python -m meshtastic --port COM4 --info
 - `configOkToMqtt = true`
 - `module_config.mqtt.enabled = false`
 
-Актуальный YAML:
+## Publishing to GitHub
 
-- `meshtastic-onemesh-yar-current-2026-04-05.yaml`
-
-## Как выложить это на GitHub
-
-Нужно всего три вещи:
-
-1. Аккаунт GitHub.
-2. Созданный пустой репозиторий на GitHub.
-3. Авторизация для `git push`.
-
-Если локальный репозиторий уже создан, дальше обычно так:
+If your local repo is already initialized:
 
 ```powershell
 git remote add origin https://github.com/USERNAME/REPO.git
@@ -175,13 +170,9 @@ git branch -M main
 git push -u origin main
 ```
 
-Если GitHub попросит авторизацию:
+## Notes
 
-- либо вход через браузер
-- либо `Personal Access Token`
-- либо `Git Credential Manager`
-
-## Примечания
-
-- `onemesh-map.html`, `onemesh-mqtt.html` и `onemesh-v2.1.7.min.js` сохранены как локальные снапшоты во время диагностики.
-- Если продолжать разбор проблемы, самый полезный внешний тест - смотреть `CW` или `power sweep` на SDR / tinySA / второй LoRa-нoде.
+- `onemesh-map.html`, `onemesh-mqtt.html`, and `onemesh-v2.1.7.min.js` are
+  local snapshots saved during troubleshooting.
+- If you continue investigating the hardware, the strongest next test is to
+  observe `CW` or `power sweep` on an SDR, tinySA, or a second LoRa node.
