@@ -1,0 +1,1999 @@
+<html>
+<head>
+
+    <meta charset="utf-8">
+
+    <title>Карта Meshtastic Россия — ONEmesh</title>
+
+    <link rel="canonical" href="https://map.onemesh.ru" />
+
+    <meta name="title" content="Карта Meshtastic Россия — ONEmesh">
+    <meta name="description" content="Интерактивная карта устройств сети Meshtastic в городах России." />
+    <meta name="keywords" content="meshtastic, мештастик, карта, onemesh, map, карта покрытия, mesh, mesh-сеть, межтастик, миштастик, мешастик, meshastic, мишастик, mechtastic, meshstatic, мешстатик, mqtt, настройка, настройки mqtt, инструкция, устройства, россия, города россии, москва, санкт-петербург, питер, краснодар, воронеж, казань" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Mobile browser theme color -->
+    <meta name="theme-color" content="#1e1b1b">
+
+    <!-- Basic favicon configuration -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicons/favicon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/images/favicons/favicon-48x48.png">
+
+    <!-- iOS device configuration -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/favicons/apple-touch-icon-152x152.png">
+
+    <!-- Android device configuration -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/favicons/android-chrome-512x512.png">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="Карта Meshtastic Россия — ONEmesh">
+    <meta property="og:description" content="Интерактивная карта устройств сети Meshtastic в городах России.">
+    <!--<meta property="og:image" content="" />-->
+    <meta property="og:url" content="https://map.onemesh.ru">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Карта Meshtastic Россия — ONEmesh" />
+    <meta property="og:locale" content="ru_RU" />
+
+    <!-- todo: twitter:card -->
+
+    <!-- tailwind css -->
+    <script src="assets/js/tailwindcss/tailwind-v3.4.3-forms-v0.5.7.js"></script>
+    <!--<link rel="stylesheet" href="assets/css/tailwind-v3.4.3.min.css"/>-->
+
+    <!-- leaflet map -->
+    <link rel="stylesheet" href="assets/js/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="assets/js/leaflet@1.9.3/dist/leaflet.js"></script>
+
+    <!-- leaflet plugins -->
+    <script src="assets/js/leaflet-plugins/leaflet.polylineoffset.js"></script>
+    <script src="assets/js/leaflet-plugins/leaflet.geometryutil.js"></script>
+    <script src="assets/js/leaflet-plugins/leaflet-arrowheads.js"></script>
+
+    <!-- leaflet markercluster -->
+    <link rel="stylesheet" href="assets/js/leaflet-plugins/leaflet.markercluster/MarkerCluster.css"/>
+    <link rel="stylesheet" href="assets/js/leaflet-plugins/leaflet.markercluster/MarkerCluster.Default.css"/>
+    <script src="assets/js/leaflet-plugins/leaflet.markercluster/leaflet.markercluster.js"></script>
+
+    <!-- leaflet groupedlayercontrol -->
+    <link rel="stylesheet" href="assets/js/leaflet-plugins/leaflet.groupedlayercontrol/leaflet.groupedlayercontrol.css"/>
+    <script src="assets/js/leaflet-plugins/leaflet.groupedlayercontrol/leaflet.groupedlayercontrol.js"></script>
+
+    <!-- leaflet ruler -->
+    <link rel="stylesheet" href="assets/js/leaflet-plugins/leaflet.ruler/leaflet-ruler.css"/>
+    <script src="assets/js/leaflet-plugins/leaflet.ruler/leaflet-ruler.js"></script>
+
+    <!-- moment -->
+    <script src="assets/js/moment@2.30.1/moment-with-locales.min.js"></script>
+
+    <!-- vuejs -->
+    <script src="assets/js/vue@3.4.26/dist/vue.global.min.js"></script>
+
+    <!-- axios -->
+    <script src="assets/js/axios@1.6.8/dist/axios.min.js"></script>
+
+    <!-- chart js -->
+    <script src="assets/js/chart.js@4.4.2/dist/chart.umd.js"></script>
+    <script src="assets/js/chartjs-adapter-moment/chartjs-adapter-moment.js"></script>
+
+    <!-- jquery & plugins -->
+    <script src="assets/js/jquery/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="assets/js/jquery-plugins/tablesort.theme.default.css" />
+    <script src="assets/js/jquery-plugins/jquery.tablesorter.min.js"></script>
+
+    <style>
+      /* used to prevent ui flicker before vuejs loads */
+      [v-cloak] {
+        display: none;
+      }
+    </style>
+
+    <link rel="stylesheet" href="assets/css/onemesh-v2.0.3.min.css" />
+</head>
+<body class="h-full">
+
+<!-- svg hexagon mark's gradients -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -1 64 64" style="position:absolute; top:-64px; left:-64px; width:1px; height:1px;">
+  <style type="text/css">
+    .svg-hexagon-path1 {
+      stroke: #fff;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+
+      -webkit-filter: url(#icon-hexagon-shadow);
+              filter: url(#icon-hexagon-shadow);
+    }
+
+    .svg-hexagon-path2 {
+      -webkit-transform: scale(.79) translate(7.6px, 7.5px);
+          -ms-transform: scale(.79) translate(7.6px, 7.5px);
+              transform: scale(.79) translate(7.6px, 7.5px);
+    }
+
+    .svg-hexagon-outer .svg-hexagon-path1 {
+      fill: #fff;
+      stroke: rgb(103 103 103 / 80%);
+    }
+
+    .svg-hexagon-outer-future {
+      width: 26px;
+      height: 26px;
+      opacity: 1;
+    }
+
+    .svg-hexagon-outer-core .svg-hexagon-path1 {
+      stroke: rgb(175 91 211 / 80%);
+    }
+
+    .svg-hexagon-outer-future .svg-hexagon-path1 {
+      stroke: rgb(13 146 255 / 80%);
+    }
+
+    .svg-hexagon-outer-only .svg-hexagon-path1 {
+      stroke-width: 5px;
+      fill: transparent;
+      -webkit-filter: url(#icon-hexagon-shadow-small);
+              filter: url(#icon-hexagon-shadow-small);
+    }
+  </style>
+  <defs>
+    <filter id="icon-hexagon-shadow" x="-40%" width="260%" y="-40%" height="260%">
+      <feDropShadow flood-opacity="0.6" dy="4" dx="0" stdDeviation="6"></feDropShadow>
+    </filter>
+    <filter id="icon-hexagon-shadow-small" x="-40%" width="260%" y="-40%" height="260%">
+      <feDropShadow flood-opacity="0.45" dy="2" dx="0" stdDeviation="6"></feDropShadow>
+    </filter>
+    <filter id="icon-hexagon-shadow-xsmall" x="-40%" width="260%" y="-40%" height="260%">
+      <feDropShadow flood-opacity="0.45" dy="2" dx="0" stdDeviation="5"></feDropShadow>
+    </filter>
+
+    <linearGradient id="gradient-role-sensor" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(102 172 239)"></stop><stop offset="100%" stop-color="rgb(85 155 223)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-tracker" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(91 184 223)"></stop><stop offset="100%" stop-color="rgb(61 160 187)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-clienthidden" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(74 195 148)"></stop><stop offset="100%" stop-color="rgb(58 177 131)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-clientmute" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(52 201 143)"></stop><stop offset="100%" stop-color="rgb(35 177 122)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-client" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(75 205 39)"></stop><stop offset="100%" stop-color="rgb(70 175 11)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-clientbase" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(159 199 21)"></stop><stop offset="100%" stop-color="rgb(138 173 18)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-repeater" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(231 164 50)"></stop><stop offset="100%" stop-color="rgb(225 138 55)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-routerlate" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(255 105 105)"></stop><stop offset="100%" stop-color="rgb(229 107 82)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-router" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(233 107 107)"></stop><stop offset="100%" stop-color="rgb(221 75 105)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-lostandfound" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(221 92 219)"></stop><stop offset="100%" stop-color="rgb(195 83 193)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-unknown" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(177 154 235)"></stop><stop offset="100%" stop-color="rgb(161 138 219)"></stop>
+    </linearGradient>
+    <linearGradient id="gradient-role-offline" gradientUnits="objectBoundingBox" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(177 177 177)"></stop><stop offset="100%" stop-color="rgb(155 153 153)"></stop>
+    </linearGradient>
+
+    <g id="hexagon-item-sensor" class="svg-hexagon"><path fill="url(#gradient-role-sensor)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-tracker" class="svg-hexagon"><path fill="url(#gradient-role-tracker)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-clienthidden" class="svg-hexagon"><path fill="url(#gradient-role-clienthidden)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-clientmute" class="svg-hexagon"><path fill="url(#gradient-role-clientmute)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-client" class="svg-hexagon"><path fill="url(#gradient-role-client)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-clientbase" class="svg-hexagon"><path fill="url(#gradient-role-clientbase)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-repeater" class="svg-hexagon"><path fill="url(#gradient-role-repeater)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-routerlate" class="svg-hexagon"><path fill="url(#gradient-role-routerlate)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-router" class="svg-hexagon"><path fill="url(#gradient-role-router)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-lostandfound" class="svg-hexagon"><path fill="url(#gradient-role-lostandfound)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-unknown" class="svg-hexagon"><path fill="url(#gradient-role-unknown)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+    <g id="hexagon-item-offline" class="svg-hexagon"><path fill="url(#gradient-role-offline)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+
+    <g id="hexagon-core-item-sensor" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-sensor)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-tracker" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-tracker)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-clienthidden" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-clienthidden)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-clientmute" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-clientmute)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-client" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-client)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-clientbase" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-clientbase)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-repeater" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-repeater)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-routerlate" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-routerlate)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-router" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-router)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-lostandfound" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-lostandfound)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-unknown" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-unknown)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+    <g id="hexagon-core-item-offline" class="svg-hexagon-outer svg-hexagon-outer-core"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/><path fill="url(#gradient-role-offline)" d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path2"/></g>
+
+    <g id="hexagon-core-item" class="svg-hexagon-outer svg-hexagon-outer-core svg-hexagon-outer-only"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+
+    <g id="hexagon-future-item" class="svg-hexagon-outer svg-hexagon-outer-future svg-hexagon-outer-only"><path d="m8 43 16 9c3 2 5 2 8 0l16-9c3-1 4-3 4-6V19c0-4-1-5-3-6L32 4c-3-2-5-2-8 0L7 13c-2 1-3 2-3 6v18c0 3 1 5 4 6Z" class="svg-hexagon-path1"/></g>
+
+  </defs>
+</svg>
+
+<div id="app" v-cloak>
+
+    <div class="flex flex-col w-full overflow-hidden" style="height: 85%; position: relative; z-index:10;">
+        <div class="flex flex-col h-full">
+
+            <!-- announcement -->
+            <!--<div v-if="isShowingAnnouncement" class="flex bg-gray-900 text-white p-2 border-gray-300 border-b">-->
+
+                <!-- info -->
+                <!--<div class="my-auto leading-tight">
+                    <div class="font-bold">Introducing MeshCore</div>
+                    <div class="text-sm">
+                        <span>Looking for a new mesh project to tinker with? Check out <a target="_blank" href="https://meshcore.nz" class="underline">MeshCore</a></span>
+                    </div>
+                </div>-->
+
+                <!-- action buttons -->
+                <!--<div class="flex my-auto ml-auto mr-0 sm:mr-2">
+                    <a @click="dismissAnnouncement" href="javascript:void(0)" class="rounded-full">
+                        <div class="bg-white text-black hover:bg-gray-100 p-2 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                        </div>
+                    </a>
+                </div>-->
+
+            <!--</div>-->
+
+            <!-- header -->
+            <div class="flex bg-white header-box">
+
+                <!-- icon -->
+                <div v-if="!isShowingMobileSearch" class="my-auto pl-2 hide-680">
+                  <a href="#" class="header-logo"><!-- --></a>
+                  <!--<img src="/images/favicons/android-chrome-512x512.png" style="width: 48px; height: 48px;"/>-->
+                </div>
+
+                <!-- app info -->
+                <div class="header-title-box my-auto leading-tight">
+
+                  <div class="city-dropdown-container">
+                    <div class="city-dropdown-header">
+                      <a href="#" class="city-item-action" title="Выбор города">
+                        <div class="city-quantity city-quantity_yellow">0</div>
+                        <div class="city-title">
+                          <h2 class="city-title-label">Россия</h2>
+                          <span class="city-title-topic">msh/RU</span>
+                        </div>
+                        <div class="city-title-shevron"><svg class="city-title-shevron-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path class="city-title-shevron-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" stroke="#999" fill="transparent" d="M112 184l144 144 144-144"></path></svg></div>
+                      </a>
+                    </div>
+                    <div class="city-dropdown">
+                      <div class="city-dropdown-search">
+                        <input class="city-search" name="city-dropdown-search" value="" placeholder="Поиск.." autocomplete="off" />
+                      </div>
+                      <div class="city-dropdown-box">
+                        <ul class="city-dropdown-list">
+                          <li class="city-item" data-search-topic="msh/ru" data-search-title="вся россия">
+                            <a href="#" class="city-item-action" data-total="0" data-topic="msh/RU" data-title="Россия">
+                              <div class="city-quantity city-quantity_yellow">0</div>
+                              <div class="city-title">
+                                <h3 class="city-title-label city-title-label_main">Вся Россия</h3>
+                                <span class="city-title-topic">msh/RU</span>
+                              </div>
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="city-dropdown-footer"><a class="link" href="/city-topics.html" target="_blank">Список кодов городов и проектов</a></div>
+                    </div>
+                  </div>
+
+                  <!--<div class="header-title">
+                    <select class="header-title-topics" name="state"></select>
+                  </div>-->
+                </div>
+
+                <!-- close mobile search button -->
+                <div v-if="isShowingMobileSearch" class="my-auto ml-auto" style="padding-left: 1rem;">
+                    <a @click="isShowingMobileSearch = false" href="javascript:void(0)" class="rounded-full">
+                        <div class="hover:bg-gray-100 p-2 round-button">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- search bar -->
+                <div class="flex-1 relative my-auto header-search-box" :class="{ 'header-search-box-expanded hidden lg:block': !isShowingMobileSearch }">
+                    <input v-model="searchText" type="text" class="border border-gray-300 text-gray-900 text-md rounded-4px focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 pl-3" :placeholder="`Поиск среди ${nodes.length} нод...`" autocomplete="off" style="font-size: 14px;" />
+
+                    <div v-if="searchText !== ''" class="header-search-dropdown absolute z-search bg-white w-full border border-gray-200 rounded-lg shadow-md mt-1 overflow-y-scroll max-h-80 divide-y divide-gray-200">
+
+                      <template v-if="searchedNodes.length > 0">
+                        <div @click="onSearchResultNodeClick(node)" class="header-search-dropdown-item flex space-x-2 p-2 cursor-pointer" v-for="node of searchedNodes">
+                          <div class="my-auto node-short-name node-short-name_search" :title="`${node.role_name}`" :class="`${getNodeRoleClass(node.role_name) + ' x-node-short_name-'+ node.node_id}`">
+                            {{ node.short_name }}
+                          </div>
+                          <div>
+                            <div class="header-search-dropdown-title" :class="{ 'text-red-500': node.latitude == null || node.longitude == null }">{{ node.long_name !== '' ? node.long_name : "—" }}</div>
+                            <div class="flex space-x-1 text-sm text-gray-400">
+                              <div>{{ node.node_id_hex }} / {{ node.node_id }}</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-if="searchedNodes.length === 500" class="text-gray-500 text-sm px-2 py-1">
+                          Показаны только последние 500 результатов.
+                        </div>
+                      </template>
+
+                      <template v-else>
+                        <div class="p-2">
+                          Ничего не найдено..
+                        </div>
+                      </template>
+
+                    </div>
+                </div>
+
+                <!-- header action buttons -->
+                <div v-if="!isShowingMobileSearch" class="header-buttons-box flex my-auto ml-auto mr-0 sm:mr-2 space-x-1 sm:space-x-2">
+                  <div class="header-auto-reload-box my-auto"><input class="header-auto-reload w-4 h-4 border border-gray-300 my-auto rounded bg-gray-50 focus:ring-3 focus:ring-blue-300" type="checkbox" vlaue="1" checked="">&nbsp;<span class="my-auto hide-680 text-sm"><span class="hide-1024">Авто-о</span><span class="show-1024-inline hide-860">О</span><span class="hide-860">бновление</span> 90с</span></div>
+
+                  <a @click="isShowingMobileSearch = true" href="javascript:void(0)" class="tooltip rounded-full block lg:hidden">
+                      <div id="search-button" class="round-button">
+                          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                              <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                              <path d="M21 21l-6 -6"></path>
+                          </svg>
+                      </div>
+                      <div class="hidden sm:block">
+                          <span class="tooltip-text">Поиск</span>
+                      </div>
+                  </a>
+                  <a href="#" class="tooltip rounded-full" onclick="reload()">
+                      <div id="reload-button" class="round-button">
+                          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 26 26" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                              <path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747"></path>
+                              <path d="M20 4v5h-5"></path>
+                          </svg>
+                      </div>
+                      <div class="hidden sm:block">
+                          <span class="tooltip-text">Обновить</span>
+                      </div>
+                  </a>
+                  <a @click="isShowingHardwareModels = !isShowingHardwareModels" href="javascript:loadLazyImages();" class="tooltip rounded-full hidden sm:block">
+                      <div class="round-button">
+                          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-2 -2 28 28" stroke-width="1.5" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                          </svg>
+                      </div>
+                      <div class="hidden sm:block">
+                          <span class="tooltip-text">Устройства</span>
+                      </div>
+                  </a>
+                  <!--<a href="#" class="tooltip rounded-full hidden lg:block" onclick="goToRandomNode()">
+                      <div id="random-button" class="bg-gray-100 hover:bg-gray-200 p-2 rounded-full">
+                          <svg class="w-6 h-6"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                              <path d="M18 4l3 3l-3 3"></path>
+                              <path d="M18 20l3 -3l-3 -3"></path>
+                              <path d="M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5"></path>
+                              <path d="M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3"></path>
+                          </svg>
+                      </div>
+                      <div class="hidden sm:block">
+                          <span class="tooltip-text">Случайная нода</span>
+                      </div>
+                  </a>-->
+
+                  <a @click="isShowingInfoModal = true" href="javascript:void(0)" class="tooltip rounded-full">
+                      <div class="round-button">
+                          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                          </svg>
+                      </div>
+                      <div class="hidden sm:block">
+                          <span class="tooltip-text">Инструкция</span>
+                      </div>
+                  </a>
+
+                  <a @click="isShowingSettings = true" href="javascript:void(0)" class="tooltip rounded-full">
+                      <div class="round-button">
+                          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                          </svg>
+                      </div>
+                      <div class="hidden sm:block">
+                          <span class="tooltip-text">Настройки</span>
+                      </div>
+                  </a>
+
+                  <a href="javascript:void(0)" class="js-dark-mode-toggle tooltip rounded-full">
+                    <div class="round-button round-button_fill p-2"><svg class="w-6 h-6" viewBox="-12 0 480 480" xmlns="http://www.w3.org/2000/svg"><path d="m114.34375 117.65625c3.140625 3.03125 8.128906 2.988281 11.214844-.097656 3.085937-3.085938 3.128906-8.074219.097656-11.214844l-48-48c-3.140625-3.03125-8.128906-2.988281-11.214844.097656-3.085937 3.085938-3.128906 8.074219-.097656 11.214844zm0 0"/><path d="m72 248c4.417969 0 8-3.582031 8-8s-3.582031-8-8-8h-64c-4.417969 0-8 3.582031-8 8s3.582031 8 8 8zm0 0"/><path d="m114.34375 362.34375-48 48c-2.078125 2.007812-2.914062 4.984375-2.179688 7.78125.730469 2.796875 2.914063 4.980469 5.710938 5.710938 2.796875.734374 5.773438-.101563 7.78125-2.179688l48-48c3.03125-3.140625 2.988281-8.128906-.097656-11.214844-3.085938-3.085937-8.074219-3.128906-11.214844-.097656zm0 0"/><path d="m232 374.976562v-269.953124c-68.429688 8.074218-119.988281 66.074218-119.988281 134.976562s51.558593 126.902344 119.988281 134.976562zm0 0"/><path d="m432 306.59375c-12.027344 4.140625-24.6875 6.15625-37.40625 5.957031-61.351562-.703125-110.558594-50.929687-110-112.277343.410156-38.417969 19.6875-74.175782 51.558594-95.632813-6.542969-.519531-13.128906-.640625-19.296875-.640625-24.351563.007812-48.210938 6.863281-68.855469 19.777344v232.445312c30.652344 19.175782 67.902344 24.726563 102.8125 15.316406 34.910156-9.414062 64.324219-32.933593 81.1875-64.914062zm0 0"/><path d="m455.398438 178.222656-17.773438-2.71875c-2.636719-.402344-4.898438-2.089844-6.03125-4.503906l-7.59375-16.167969-7.59375 16.167969c-1.132812 2.414062-3.394531 4.101562-6.03125 4.503906l-17.773438 2.71875 13.125 13.457032c1.773438 1.816406 2.578126 4.367187 2.167969 6.871093l-3.015625 18.480469 15.257813-8.429688c2.40625-1.328124 5.320312-1.328124 7.726562 0l15.257813 8.429688-3.015625-18.480469c-.410157-2.503906.394531-5.054687 2.167969-6.871093zm0 0"/><path d="m240 480c4.417969 0 8-3.582031 8-8v-80c-5.34375-.007812-10.683594-.292969-16-.855469v80.855469c0 4.417969 3.582031 8 8 8zm0 0"/><path d="m248 8c0-4.417969-3.582031-8-8-8s-8 3.582031-8 8v80.855469c5.316406-.5625 10.65625-.847657 16-.855469zm0 0"/></svg>
+                    </div>
+                    <div class="hidden sm:block">
+                        <span class="tooltip-text">День/Ночь</span>
+                    </div>
+                  </a>
+
+                  <a href="https://t.me/onemesh_ru/1" target="_blank" class="round-button round-button_fill my-auto hide-680" title="Группа в Telegram @onemesh_ru - ответы на вопросы, помощь с настройками, планы">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#111" width="24px" height="24px" viewBox="-2 -3 54 54" version="1.1"><path d="M41.4193 7.30899C41.4193 7.30899 45.3046 5.79399 44.9808 9.47328C44.8729 10.9883 43.9016 16.2908 43.1461 22.0262L40.5559 39.0159C40.5559 39.0159 40.3401 41.5048 38.3974 41.9377C36.4547 42.3705 33.5408 40.4227 33.0011 39.9898C32.5694 39.6652 24.9068 34.7955 22.2086 32.4148C21.4531 31.7655 20.5897 30.4669 22.3165 28.9519L33.6487 18.1305C34.9438 16.8319 36.2389 13.8019 30.8426 17.4812L15.7331 27.7616C15.7331 27.7616 14.0063 28.8437 10.7686 27.8698L3.75342 25.7055C3.75342 25.7055 1.16321 24.0823 5.58815 22.459C16.3807 17.3729 29.6555 12.1786 41.4193 7.30899Z" /></svg>
+                  </a>
+
+                  <!--<a href="https://meshtastic.org/" target="_blank" class="round-button round-button_fill my-auto hide-790" title="Powered by Meshtastic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-140 -100 1000 1000" class="w-6 h-6">
+                    <path d="M506.61417 110.01447c-7.4752 10.63141-14.37214 20.39566-21.22349 30.19167-62.68561 89.62731-125.36335 179.26018-188.04485 268.89037-.57258.81874-1.13637 1.64598-1.75207 2.43186-3.82485 4.88178-4.32372 5.0275-9.7006 1.46763-12.70347-8.41072-25.36593-16.88376-38.01347-25.37853-7.79142-5.23316-7.90587-5.83521-2.57486-13.44742 31.94418-45.61377 63.90127-91.21862 95.8654-136.81841C384.31457 175.802 427.44948 114.24562 470.6537 52.737971c3.86001-5.49532 7.38144-11.22595 12.24113-16.03869 13.25674-13.12876 37.28379-12.53572 48.96104 3.2886 10.0843 13.6657 19.83342 27.56115 29.65121 41.40787 68.89636 97.169119 137.6986 194.405009 206.52803 291.621529 7.83226 11.0626 7.13773 9.79202-3.15678 16.9286-11.69922 8.1105-23.55601 15.99402-35.34989 23.968-7.23496 4.89157-7.32899 4.94702-12.23225-2.06031-17.75314-25.37098-35.44804-50.78268-53.1522-76.18789-50.8269-72.93612-101.64621-145.87757-152.47815-218.81021-1.42257-2.04109-2.95399-4.00641-5.05167-6.841zM259.73492 19.851911c7.87117 5.4521 15.4219 10.68623 22.97693 15.91419 7.19046 4.97563 14.41224 9.90646 21.5691 14.92977 5.07044 3.55891 5.07218 3.68873 1.57061 8.70379-17.0186 24.37444-34.04498 48.743459-51.08646 73.101929-41.67234 59.56524-83.36051 119.11953-125.03042 178.68659-23.19794 33.16164-46.37162 66.34024-69.55734 99.51043-.42938.61431-.85552 1.23206-1.31201 1.82605-3.28418 4.27338-3.36081 4.38149-7.68128 1.46951-13.24726-8.92863-26.47837-17.88298-39.62011-26.96553-5.65973-3.91147-5.67003-4.55452-1.43534-10.61153 37.35955-53.43658 74.73933-106.85907 112.11651-160.28331 41.67293-59.56421 83.34655-119.127859 125.02859-178.685689 3.99706-5.71128 8.05619-11.3793 12.46122-17.5962z"/>
+                    <path d="M58.26109 580.357491c28.94262 0 51.16252 5.24208 66.66411 15.72031 15.49768 10.48316 23.24872 27.64568 23.24872 51.48656 0 24.04015-7.84293 41.39207-23.52877 52.06365-15.68536 10.67257-38.09392 16.00835-67.22422 16.00835H45.4653c-.97719 0-1.76936.79218-1.76936 1.76937v63.38009c0 .9772-.79217 1.76937-1.76936 1.76937H1.76937c-.9772 0-1.76937-.79217-1.76937-1.76937v-193.77466c0-.84808.59575-1.58189 1.42823-1.74383 9.10204-1.77062 18.70935-3.02364 28.82277-3.75567 10.64393-.76649 19.979-1.15417 28.01009-1.15417zm2.80101 38.36363c-3.17735 0-6.3024.0986-9.38346.28804-2.36806.14861-4.48783.29779-6.35949.44488-.9209.0724-1.62323.83552-1.62323 1.75926.00002 8.2826.00002 45.7042.00002 54.29764 0 .97719.79217 1.76279 1.76936 1.76279h11.95563c15.12525 0 26.51355-2.11301 34.17221-6.34494 7.65476-4.22799 11.48458-12.11478 11.48458-23.65247 0-5.5755-.98043-10.19019-2.94128-13.84504-1.96085-3.65091-4.76186-6.58465-8.40303-8.79729-3.64116-2.2087-8.07947-3.75054-13.30467-4.61567-5.23008-.86513-11.02026-1.2972-17.36664-1.2972zm247.59975-15.97489c.79019 0 1.47638.51465 1.69324 1.2745 2.16266 7.57771 4.53568 16.05838 7.1224 25.44362 2.73272 9.91989 5.65111 20.17367 8.75961 30.76232 3.10406 10.59162 6.26146 21.18423 9.46279 31.7719 3.20233 10.59261 6.30936 20.41372 9.32552 29.46233 2.4631-9.82012 4.97558-20.50756 7.53547-32.06134 2.55593-11.55377 4.9736-23.49083 7.24708-35.8171 2.27348-12.32034 4.50153-24.59622 6.68218-36.82667 2.08493-11.70043 4.04142-23.00372 5.86947-33.91413.14278-.85217.8768-1.46932 1.74085-1.46932 6.73464.00001 34.26963.00002 42.21065.00002 1.11717 0 1.95093 1.01983 1.73254 2.11544-6.54222 32.82052-14.04403 66.10387-22.49801 99.84544-8.52211 34.01835-17.73864 66.3445-27.64201 96.98318-.23648.73163-.91778 1.22391-1.68668 1.22391h-37.83989c-.74981 0-1.4181-.46784-1.66925-1.17435-6.44593-18.13311-12.70924-37.13909-18.79039-57.0272-6.2175-20.31395-12.33723-40.67728-18.35968-61.09099-6.04516 20.41371-12.08983 40.77704-18.1345 61.09099-5.91687 19.88831-12.10486 38.89448-18.56395 57.02776-.25153.70614-.91998 1.17379-1.66958 1.17379h-37.8084c-.76906 0-1.45048-.49249-1.68685-1.22432-9.89572-30.63856-19.09419-62.96457-27.59871-96.98277-8.44145-33.74172-15.92504-67.02522-22.45911-99.84588-.2181-1.09549.62274-2.115 1.73973-2.115l44.171-.00001c.86385 0 1.59904.61682 1.74173 1.4688 1.8273 10.91059 3.83221 22.21404 6.01168 33.91464 2.27299 12.23045 4.64325 24.50633 7.11031 36.82667 2.4631 12.32627 4.97459 24.26333 7.53497 35.8171 2.56038 11.55379 5.16916 22.24124 7.82238 32.06133 3.40034-9.43291 6.70785-19.44762 9.92251-30.03922 3.21073-10.58866 6.33256-21.18028 9.35712-31.77288 3.02456-10.58866 5.81011-20.797 8.36161-30.6181 2.40889-9.2713 4.60872-17.59781 6.59613-24.98282.20792-.77258.90027-1.30164 1.70033-1.30163 5.86792 0 29.12859-.00001 34.95571-.00001zm192.85336-22.81344c28.87398 0 50.98994 5.35919 66.35561 16.07659 15.36084 10.71641 23.04319 27.37152 23.04319 49.96434 0 14.09834-3.10143 25.53988-9.30041 34.3246-5.83667 8.26855-14.08407 14.86675-24.75028 19.79869-1.03541.47876-1.37351 1.77433-.68502 2.68388 3.47408 4.58947 7.09205 9.74248 10.85928 15.46172 4.25537 6.47164 8.46812 13.22859 12.63242 20.27578 4.16431 7.05115 8.19006 14.3876 12.07726 22.01331 3.44589 6.76438 6.67327 13.41121 9.68213 19.94394.53973 1.17185-.32559 2.50425-1.61576 2.50425l-44.59811.00002c-.65123 0-1.24782-.35378-1.55638-.92728-3.36964-6.26277-6.78221-12.61559-10.23349-19.05926-3.62269-6.75695-7.33646-13.32369-11.14518-19.69628-3.80872-6.3716-7.57384-12.4054-11.2876-18.10338-3.54038-5.42158-7.08077-10.36701-10.6178-14.82945-.33662-.42469-.8475-.66665-1.38941-.66665h-18.75014c-.97719 0-1.76936.79217-1.76936 1.76937v69.74355c0 .97719-.79217 1.76936-1.76937 1.76936h-39.77273c-.97719 0-1.76936-.79217-1.76936-1.76936v-194.60674c0-.84607.59562-1.57892 1.42565-1.74286 8.99615-1.77684 18.28198-3.03435 27.86495-3.76913 10.08618-.7697 19.10948-1.15901 27.06991-1.15901zm2.49877 38.52478c-3.14987 0-5.96935.0991-8.46812.28926-1.90062.14768-3.72109.29594-5.46095.44215-.916.077-1.61877.84378-1.61876 1.763l.00001 51.05976c0 .97719.79217 1.76936 1.76936 1.76936h10.44644c16.28516 0 27.94579-2.12287 34.98286-6.37259 7.03125-4.24575 10.55027-11.4871 10.55027-21.72405 0-9.84864-3.56649-16.84531-10.68979-20.99992-7.12718-4.14966-17.62998-6.22697-31.51132-6.22697zm294.6588 62.712c0 17.22991-2.61426 32.26091-7.83496 45.08415-5.22461 12.82815-12.64063 23.45346-22.24707 31.87494-9.61035 8.42738-21.31543 14.74422-35.11914 18.95349-13.80762 4.20829-29.29102 6.31783-46.45215 6.31783-7.83594 0-16.97852-.33686-27.42383-1.00566-9.95946-.64115-19.74418-1.92634-29.36176-3.87172-.82673-.16722-1.42047-.89955-1.42047-1.74301v-190.90716c0-.85558.60784-1.5938 1.44943-1.74789 9.63031-1.7633 19.64126-2.96564 30.03202-3.60618 10.91406-.6688 20.28809-1.00566 28.12305-1.00566 16.60254 0 31.66504 1.91607 45.19336 5.7433 13.52441 3.83214 25.13769 9.8632 34.83984 18.09219 9.69824 8.23292 17.16211 18.76395 22.38672 31.58719 5.2207 12.82816 7.83496 28.24119 7.83496 46.23419zm-126.2051 61.54774c0 .92738.7084 1.69585 1.63312 1.76589 1.65237.12514 3.48673.22263 5.50264.29287 2.70215.0982 5.91993.14339 9.6543.14339 21.82715 0 38.00977-5.64412 48.55176-16.94216 10.53711-11.29412 15.81055-26.89473 15.81055-46.80773 0-20.86465-5.03711-36.65874-15.11133-47.38226-10.07422-10.71959-26.02442-16.08086-47.85157-16.08086-2.98632 0-6.06445.0491-9.23437.14339-2.59596.0803-5.0633.25385-7.40628.52332-.88675.10199-1.5488.86458-1.5488 1.75717z"/>
+                  </svg></a>-->
+
+                  <a href="https://meshapp.ru" target="_blank" class="round-button round-button_fill my-auto hide-790" title="MeshApp — клиент Meshtastic для Windows / macOS / Linux"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; color: #000; margin-top: -1px;">
+                    <circle cx="16" cy="6" r="3" fill="currentColor"></circle>
+                    <circle cx="6" cy="26" r="3" fill="currentColor"></circle>
+                    <circle cx="26" cy="26" r="3" fill="currentColor"></circle>
+                    <circle cx="26" cy="14" r="2.5" fill="currentColor" opacity="0.6"></circle>
+                    <circle cx="6" cy="14" r="2.5" fill="currentColor" opacity="0.6"></circle>
+                    <circle cx="16" cy="28" r="2.5" fill="currentColor" opacity="0.6"></circle>
+                    <line x1="16" y1="6" x2="6" y2="26" stroke="currentColor" stroke-width="1.5" opacity="0.4"></line>
+                    <line x1="16" y1="6" x2="26" y2="26" stroke="currentColor" stroke-width="1.5" opacity="0.4"></line>
+                    <line x1="6" y1="26" x2="26" y2="26" stroke="currentColor" stroke-width="1.5" opacity="0.4"></line>
+                    <line x1="16" y1="6" x2="26" y2="14" stroke="currentColor" stroke-width="1" opacity="0.3"></line>
+                    <line x1="16" y1="6" x2="6" y2="14" stroke="currentColor" stroke-width="1" opacity="0.3"></line>
+                    <line x1="6" y1="14" x2="6" y2="26" stroke="currentColor" stroke-width="1" opacity="0.3"></line>
+                    <line x1="26" y1="14" x2="26" y2="26" stroke="currentColor" stroke-width="1" opacity="0.3"></line>
+                    <line x1="6" y1="26" x2="16" y2="28" stroke="currentColor" stroke-width="1" opacity="0.3"></line>
+                    <line x1="26" y1="26" x2="16" y2="28" stroke="currentColor" stroke-width="1" opacity="0.3"></line>
+                  </svg></a>
+                </div>
+
+            </div>
+
+            <!-- map -->
+            <div id="map" style="width:100%;height:100%;"></div>
+
+        </div>
+    </div>
+
+    <!-- node list -->
+
+    <div class="node-list-box">
+      <table class="node-list-table">
+        <thead>
+          <tr>
+            <th data-sorter="custom_datetime">Обновлено</th>
+            <th data-sorter="text">Город</th>
+            <th class="hide-680" data-sorter="text">ID</th>
+            <th data-sorter="text">Имя</th>
+            <th class="hide-680" data-sorter="text">Длинное имя</th>
+            <th class="hide-1024" data-sorter="text" style="min-width:70px;">Регион</th>
+            <th data-sorter="text">Роль</th>
+            <th class="hide-680" data-sorter="text">Устройство</th>
+            <th class="hide-1024">Заряд</th>
+            <th class="hide-1500" style="min-width:75px;">Напряж.</th>
+            <th class="hide-1500" data-sorter="custom_period">Активен</th>
+            <th class="hide-1024" style="min-width:70px;">Ch Util</th>
+            <th class="hide-1024" style="min-width:85px;">Air Util Tx</th>
+            <th class="hide-1500">Шир.</th>
+            <th class="hide-1500">Дол.</th>
+            <th class="hide-1500" style="min-width:65px;">Высота</th>
+            <!--<th class="hide-1500" data-sorter="custom_datetime">Позиция</th>-->
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- info modal -->
+    <div class="relative z-sidebar">
+
+        <!-- overlay -->
+        <transition
+                enter-active-class="transition-opacity duration-300 ease-linear"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-300 ease-linear"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+            <div v-show="isShowingInfoModal" @click="dismissInfoModal" class="fixed inset-0 bg-gray-900 bg-opacity-75"></div>
+        </transition>
+
+        <!-- modal -->
+        <transition
+                enter-active-class="transition duration-300 ease-in-out transform"
+                enter-from-class="translate-y-full"
+                enter-to-class="translate-y-0"
+                leave-active-class="transition duration-300 ease-in-out transform"
+                leave-from-class="translate-y-0"
+                leave-to-class="translate-y-full">
+            <div @click="dismissInfoModal" v-show="isShowingInfoModal" class="fixed left-0 right-0 top-0 bottom-0 lg:pointer-events-none">
+                <div class="flex w-full h-full overflow-y-auto p-4">
+                    <div @click.stop class="tooltip-window mx-auto my-auto w-full max-w-2xl flex-col bg-white shadow-xl rounded-16px p-2 lg:pointer-events-auto">
+                        <div class="relative flex">
+
+                            <!-- close button -->
+                            <div class="absolute top-0 right-0">
+                                <div class="h-7">
+                                    <a href="javascript:void(0)" class="rounded-full" @click="dismissInfoModal">
+                                        <div class="hover:bg-gray-100 p-2 round-button">
+                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M18 6l-12 12"></path>
+                                                <path d="M6 6l12 12"></path>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- content -->
+                            <div class="flex flex-col w-full py-2 space-y-2">
+
+                                <!-- app info -->
+                                <div class="w-full mx-auto text-center">
+                                    <div class="flex justify-center text-center pt-5">
+                                      <img src="/images/favicons/android-chrome-512x512.png" class="mx-auto mb-1 rounded-16px" style="width: 96px; height: 96px;" />
+                                    </div>
+
+                                    <h1 class="font-bold text-lg pt-4 pb-2">ONEmesh — Карта Meshtastic Россия</h1>
+                                    <!--<h2>Разработка <b>Владимир Гришин</b></h2>
+                                    <div>На основе проекта от <a class="link" target="_blank" href="https://liamcottle.com">Liam Cottle</a></div>-->
+                                </div>
+
+                                <!-- welcome -->
+                                <div class="info-intro-important bg-green-100 rounded p-2 border border-green-200 text-center mx-auto px-4">
+                                  ?? Добро пожаловать на карту устройств сети Meshtastic в России!
+                                </div>
+
+                                <!-- telegram -->
+                                <div class="info-intro-important bg-blue-100 rounded p-2 border border-blue-200 text-center mx-auto px-4">
+                                  Следите за новостями и планами в группах:<br /><a class="link" href="https://t.me/onemesh_ru" target="_blank"><b>Telegram</b></a>, <a class="link" href="https://yandex.ru/chat/#/join/b6f9f5ac-f384-4602-b263-8bb343a57f8a" target="_blank"><b>Яндекс Мессенджер</b></a> или <a class="link" href="https://max.ru/join/BdO03ZjWsz5GvSNZv6u2lUPM5QkIM0HQsepqkAdeLSU" target="_blank"><b>MAX</b></a>
+                                  <br>
+                                  <a class="link" href="https://meshapp.ru" target="_blank" style="display: inline-block; margin-top: 10px;"><b>MeshApp</b></a> — клиент Meshtastic для Windows / macOS / Linux
+                                </div>
+
+                                <!-- city codes for topics -->
+                                <div class="info-intro-important bg-yellow-100 rounded p-2 border border-yellow-200 text-center mx-auto px-4"><a class="link" href="/city-topics.html" target="_blank"><b>Коды городов России для сети Meshtastic</b></a></div>
+
+                                <!-- features -->
+                                <div>
+                                  <div class="font-bold pt-3 mb-2 text-lg ml-2">Возможности</div>
+                                  <div class="p-2">
+                                    <ul class="list-disc list-inside">
+                                      <li>На карте отображаются устройства, позиция которых была получена сервером MQTT.</li>
+                                      <li>Устройства разделены по городам, но можно увидеть все при выборе "Вся Россия".</li>
+                                      <li>Используйте поиск, чтобы найти устройства по ID, короткому или длинному имени.</li>
+                                      <li>Нажмите на устройство на карте / короткое имя, чтобы увидеть дополнительную информацию, историю местоположения, посмотреть соседей, открыть телеметрию, графы, трассировки и т.д.</li>
+                                      <li>Используйте панель слоев справа вверху, чтобы увидеть соседей или отдельные группы устройств.</li>
+                                      <li>Используйте кнопку настроек для более тонкой настройки карты под себя.</li>
+                                      <li>Нашли ошибку или есть идея? Напишите в группу <a class="link" target="_blank" href="https://t.me/onemesh_ru">onemesh_ru</a> в Telegram.</li>
+                                      <li>Возможно настроить пересылку сообщений Meshtastic в вашу группу в Telegram - по запросу в группе.</li>
+                                      <li>Все ваши данные хранятся в безопасности на серверах Яндекс Облака в России.</li>
+                                    </ul>
+                                  </div>
+                                </div>
+
+                                <!-- settings -->
+                                <div>
+                                    <div class="font-bold mb-2 text-lg ml-2">Настройка</div>
+                                    <div class="space-y-2">
+
+                                      <div class="info-intro-important bg-yellow-100 rounded p-2 border border-yellow-200 text-center mx-auto px-4"><a class="link" href="/mqtt.html" target="_blank"><b>Описание настроек здесь ></b></a></div>
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">Коротко про механику работы</div>
+                                          <ul class="list-disc list-inside">
+                                            <li>Ваше устройство, либо устройство, которое вас слышит, должно выгружать данные на наш сервер MQTT.</li>
+                                            <li>Пакеты с данными должны быть не зашифрованы, либо зашифрованы ключом PSK по-умолчанию AQ==</li>
+                                            <li>Для подключения к нашему серверу MQTT и отправки данных напрямую, выполните настройки ниже.</li>
+                                            <li>Если у вас есть соседние устройства, уже подключенные к нашему сервер MQTT, то вам не обязательно настраивать MQTT - соседи могут отправить ваши данные сами. Но остальные настройки необходимо выполнить.</li>
+                                            <li><b>Обратите внимание</b>: если ваше устройство передает своё местоположение, то история изменений этого местоположения хранится картой 30 дней. Если нужно удалить - пишите в группу в телеграм.</li>
+                                          </ul>
+                                        </div>
+
+                                        <!--<div class="p-2">
+                                          <div class="font-semibold">1. Настройка "MQTT"</div>
+                                          <ul class="list-disc list-inside">
+                                            <li>Адрес: <b>mqtt.onemesh.ru</b></li>
+                                            <li>Имя пользователя: <b>onemesh</b> <i>(см. внизу)</i></li>
+                                            <li>Пароль: <b>onecat</b></li>
+                                            <li>Шифрование включено: <b>*</b><i>(см. внизу)</i></li>
+                                            <li>Вывод JSON включен: <b>Нет</b></li>
+                                            <li>TLS включен: <b>Нет</b></li>
+                                            <li>Корневая тема: <b>msh/RU/XXX</b>, где <b style="color: #b10000;">XXX</b> - код города <a class="link" href="/city-topics.html" target="_blank">отсюда</a></li>
+                                            <li>Прокси клиенту включен: <b>*</b><i>(см. внизу)</i></li>
+                                            <li>Отчеты по карте: <b>Да</b></li>
+                                            <li>Я согласен: <b>Да</b></li>
+                                            <li>Точность: <b>729 м</b></li>
+                                            <li>Интервал отчета карты: <b>1 час (3600 сек)</b></li>
+                                          </ul>
+                                          <div style="margin-top: 7px;">&nbsp; <b>*</b> "Шифрование" нужно выключить, если у вас активен "Лицензированный радиолюбитель (HAM)" в разделе "Пользователь" или не заполнен "PSK" у каналов, а иначе - включить.<br />
+                                          &nbsp; <b>*</b> "Прокси клиенту" нужно выключить, если ваше устройство подключено по Wi-Fi. Если же вы подключаетесь к нему через Bluetooth - включить (тогда данные будут отправляться в интернет через телефон).</div>
+                                          <div style="margin-top: 7px;">Наш MQTT-сервер поддерживает три различных режима работы, которые зависят от того, какое "Имя пользователя" вы настроите:
+                                            <br />— <b>"onemesh"</b> - имя пользователя по-умолчанию, большинству стоит использовать его (downlink выключен).
+                                            <br />— <b>"onemeshz"</b> - downlink включен в режиме zero-hop policy (ваша нода получает данные из интернета, но по радио их не ретранслирует).
+                                            <br />— <b>"onemeshd"</b> - режим downlink без ограничений (не рекомендуется использовать). Его можно использовать в строго ограниченных случаях, например: для какой-либо интеграции; когда рядом нет других нод; когда вам требуется соединить два разных сегмента, не имеющих прямой связи по радио (разные районы города, пригород и т.д.). Использование "onemeshd" с включенным Downlink будет сильно нагружать радио-сеть пересылкой пакетов из интернета - используйте его только если полностью понимаете, что вы делаете.</div>
+                                          <div style="margin-top: 7px;">Возможно настройку MQTT придется выполнить в два этапа - сначала основную часть, потом отчеты по карте, т.к. в некоторых версиях приложения кнопка "Сохранить"/"Отправить" не активна, если заполнить сразу всё (а может придется пробовать разные комбинации параметров с сохранением, некоторые приложения сильно глючат).</div>
+                                          <div style="margin-top: 7px;">Выполнив эти настройки на своем устройстве, при наличии интернет-подключения на устройстве / вашем телефоне, а также GPS на устройстве или фиксированных координатах / включенной настройке в приложении "Предоставление местоположения для сети" (на устройствах Apple понадобится также включить Location и Share Location в разрешениях для приложения) - ваше устройство должно появиться на карте с выбранной точностью в течение нескольких часов (3600 сек = 1 час, но это минимум). Интервал можно не увеличивать, т.к. эти данные отправляются только на сервер. Информация будет передаваться когда есть подключение к интернету и только про ваше устройство и местоположение, без сообщений и телеметрии.</div>
+                                          <div style="margin-top: 7px;">Учитывайте, что история местоположения хранится картой 30 дней. При необходимости вы можете уменьшить точность передаваемых координат, либо прописать в настройках раздела "Местоположение" фиксированные координаты в стороне от реальных.</div>
+                                        </div>
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">2. Настройка "LoRa"</div>
+                                          <ul class="list-disc list-inside">
+                                            <li>Ограничение прыжков: <b>4 или больше</b></li>
+                                            <li>Игнорировать MQTT: <b>Нет</b></li>
+                                            <li>OK в MQTT: <b>Да</b></li>
+                                          </ul>
+                                          <div style="margin-top: 7px;">Настройка "OK в MQTT" разрешает соседним устройствам передавать ваши данные на сервер карты (даже если вы у себя подключение к MQTT не настроили). Так вы можете появиться на карте не настраивая у себя MQTT, если кто-то из ваших соседей настроил его у себя и выполнил остальные настройки (а вы настроите трансляцию местоположения в канале как указано далее). После включения этой опции, ваше устройство может появится на карте в течение нескольких минут, если есть связь с таким соседом и ваша нода отправит ему свои данные.</div>
+                                          <div style="margin-top: 7px;">"Игнорировать MQTT" используется, если кто-то из ваших соседей настроил подключение к MQTT, включил Downlink и его устройство начало ретранслировать получаемые из интернета данные по радио через LoRa, а вы такие данные получать не хотите. При включении этой опции, ваша нода перестанет принимать пакеты с данными, которые хотя бы раз на своем пути прошли по MQTT (через интернет).</div>
+                                        </div>
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">3. Настройка "Каналы"</div>
+                                          <ul class="list-disc list-inside">
+                                            <li>PSK: <b>*</b><i>(см. внизу)</i></li>
+                                            <li>Uplink включен: <b>Да</b></li>
+                                            <li>Downlink включен: <b>(по-желанию)</b></li>
+                                            <li>Позиция включена: <b>Да</b></li>
+                                            <li>Precise location: <b>Нет</b></li>
+                                            <li>Точность: <b>182 м</b></li>
+                                          </ul>
+                                          <div style="margin-top: 7px;">&nbsp; <b>*</b> Если ранее вы включили "Шифрование" в настройках MQTT, то должен быть хотя бы один канал с "PSK" AQ==, если же "Шифрование" там выключено, то PSK не важен, данные будут поступать (не рекомендуется выключать шифрование).</div>
+                                          <div style="margin-top: 7px;">Желательно настроить так хотя бы один канал. Обратите внимание на "PSK", "Позиция включена" и "Точность" - их корректной настройки достаточно для передачи местоположения, данных об устройстве и сообщениий общедоступных каналов, даже если вы не настраивали MQTT у себя - ваши данные сможет отправить соседнее устройство.</div>
+                                          <div style="margin-top: 7px;">Если же вы сами настроили у себя MQTT, то нужно также включить "Uplink" - тогда ваше устройство будет передавать данные на MQTT-сервер самостоятельно.</div>
+                                          <div style="margin-top: 7px;">Включите "Downlink" если вы хотите получать данные и сообщения от других устройств в том числе через интернет. Можно включить свободно, если в разделе MQTT вы использовали имя пользователя <b>"onemesh"</b> (тут Downlink не сработает) или <b>"onemeshz"</b> (Downlink сработает без ретрансляции по радио).<br />Использовать логин <b>"onemeshd"</b> с "Downlink" не рекомендуется, т.к. это сильно нагружает радио-сеть пересылкой пакетов из интернета, сделать это можно для какой-либо интеграции или когда рядом нет других нод или вам требуется соединить два разных сегмента, не имеющих прямой связи по радио (разные районы города, пригород и т.д.). Будьте с этим очень осторожны!</div>
+                                        </div>
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">4. Настройка "Местоположение"</div>
+                                          <ul class="list-disc list-inside">
+                                            <li>Период трансляции: <b>*</b><b>1 час (3600 сек)</b></li>
+                                            <li>Умная позиция: <b>Нет</b></li>
+                                          </ul>
+                                          <div style="margin-top: 7px;">&nbsp; <b>*</b> Значение интервала выставляйте соответственно принятым в вашем городе правилам. Если устройств в городе много, то для снижения нагрузки на сеть значение можно существенно увеличить (до 6-12 часов).</div>
+                                          <div style="margin-top: 7px;">"Умная позиция" автоматически регулирует частоту отправки местоположения, снижая её если нода не меняет свое положение в заданных пределах и отправляя координаты чаще при быстром движении. Включайте, только если это необходимо для вашего сценария использования устройства, но это может вызывать проблемы с передачей координат на карту, а также очень частую трансляцию местоположения по радио.</div>
+                                          <div style="margin-top: 7px;">Если будете устанавливать фиксированные координаты, то не оставляйте в конце координат нули - удаляйте их (например, вводите не 52.51600, а 52.516), иначе могут быть проблемы с их самопроизвольным удалением. Не во всех версиях приложения можно прописать фиксированные координаты вручную (только на android и через командную строку CLI), а в остальных случаях при включении фиксированных координат, берутся текущие координаты телефона, если они есть.</div>
+                                          <div style="margin-top: 7px;">Отправка информации о местоположении идет другим устройствам в канале, а также на сервер MQTT если вы настроили подключение и включили у канала Uplink.</div>
+                                          <div style="margin-top: 7px;"><b>Обратите внимание:</b> история местоположения хранится картой 30 дней. При необходимости вы можете уменьшить точность передаваемых координат у каналов и отчета по карте MQTT, либо прописать фиксированные координаты в стороне от реальных.</div>
+                                        </div>
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">5. Настройка "Информация об окружности"</div>
+                                          <ul class="list-disc list-inside">
+                                            <li>Информация о соседях: <b>Да</b></li>
+                                            <li>Интервал обновления: <b>4 часа (14400 сек)</b></li>
+                                            <li>Передать через LoRa: <b>Нет</b></li>
+                                          </ul>
+                                          <div style="margin-top: 7px;">При включении данной настройки и настроеном подключении к MQTT, ваше устройство начнет передавать карте информацию о своих соседях и качестве радиосигнала от них. Минимальный интерва 14400 сек = 4 часа. Включать передачу через LoRa не рекомендуется, т.к. это лишняя нагрузка на радио-сеть, но если включите, то увеличьте интервал до 6-12 часов. Если передачу по радио включать не будете, то можно оставить минимальный интервал, т.к. на радио-сеть Meshtastic и загрузку канала этот модуль сам по себе не влияет.<br />Эти данные будут отображаться на карте - смотрите слой "Соседи", либо нажмите на иконки "Кто слышал это устройство" и "Кого слышало это устройство" во всплывающем окне с информацией о ноде.</div>
+                                        </div>
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">6. Настройка "Пользователь"</div>
+                                          <div style="margin-top: 7px;">Здесь важна опция "Лицензированный радиолюбитель (HAM)". Если он включен, то нужно отключить шифрование в настройках MQTT, если выключен - можно шифрование включить, настроив соответственно каналы.</div>
+                                        </div>-->
+
+                                    </div>
+                                </div>
+
+
+                                <!-- faq -->
+                                <div>
+                                  <div class="font-bold mb-2 text-lg ml-2">FAQ</div>
+                                  <div class="space-y-2">
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">Как мне добавить моё устройство на карту?</div>
+                                          <ul class="list-disc list-inside">
+                                            <li>Ваше устройство, либо устройство, которое вас слышит, должно выгружать данные на наш сервер MQTT.</li>
+                                            <li>Пакеты с координатами должны быть не зашифрованы, либо зашифрованы ключом PSK по-умолчанию AQ==</li>
+                                            <li>Если ваше устройство имеет прошивку v2.5 или новее, вам нужно включить "OK to MQTT" в настройках LoRa.</li>
+                                            <li>Если у вас есть соседние устройства, уже подключенные к нашему сервер MQTT, то вы можете попробовать пропустить настройку MQTT - соседи могут отправить ваши данные сами. Но остальные настройки необходимо выполнить.</li>
+                                          </ul>
+                                        </div>
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">Как мне убрать моё устройство с карты?</div>
+                                          <ul class="list-disc list-inside">
+                                            <li>Устройства, которые не были в сети 14 дней удаляются автоматически (кроме опорных и планируемых нод).</li>
+                                            <li>Опорные ноды, которые не были в сети 42 дня (14 * 3), удаляются автоматически.</li>
+                                            <li>Не включайте "MQTT" в MQTT и "Uplink" с "Позицией" в каналах, чтобы не отображаться на карте.</li>
+                                            <li>Используйте индивидуальные ключи шифрования у каналов, чтобы никто не мог увидеть ваши данные.</li>
+                                            <li>Если ваше устройство имеет прошивку v2.5 или новее, выключите опцию "OK в MQTT" в настройках LoRa.</li>
+                                            <li>Для немедленного удаления вашего устройства с карты напишите в группу <a class="link" target="_blank" href="https://t.me/onemesh_ru">onemesh_ru</a> в Telegram.</li>
+                                          </ul>
+                                        </div>
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">Как мне увидеть соседей, которые видны моему устройству?</div>
+                                          <ul class="list-disc list-inside">
+                                            <li>Откройте панель слоев справа вверху и включите показ соседей.</li>
+                                            <li>Некоторые соседи могут быть получены через MQTT, но это исправлено в последней прошивке Meshtastic.</li>
+                                          </ul>
+                                        </div>
+
+                                        <div class="p-2">
+                                          <div class="font-semibold">Почему моё устройство отображается не на том месте?</div>
+                                          <ul class="p-2 list-disc list-inside">
+                                            <li>Проверьте выбранную точность местоположения в настройках "MQTT", а также у каналов в разделе "Каналы".</li>
+                                            <li>Эта карта округляет ваши координаты до двух знаков после запятой (уменьшает точность) для прошивок v2.4 и старее.</li>
+                                            <li>Для устройств с прошивкой v2.5 и новее, с включенной опцией "OK в MQTT", будет показана позиция с точностью, выбранной вами в настройках.</li>
+                                            <li>Для устройств с прошивкой v2.5 и новее, с выключенной опцией "OK в MQTT", позиция показана не будет, если вы сами не настроите подключение к MQTT.</li>
+                                          </ul>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- legal -->
+                                <div>
+                                    <div class="font-bold mb-2 text-lg ml-2">Юридическая информация</div>
+                                    <div class="p-2">
+                                        <div>Разработка — <b>Владимир Гришин</b></div>
+                                        <div>Этот проект не связан и не одобрен проектом <a class="link" target="_blank" href="https://meshtastic.org">Meshtastic</a>.</div>
+                                        <div>Логотип Meshtastic является товарным знаком Meshtastic LLC.</div>
+                                        <div>За основу был взят проект: <a class="link" target="_blank" href="https://github.com/liamcottle/meshtastic-map">github.com/liamcottle/meshtastic-map</a></div>
+                                        <div>Карты предоставлены <a class="link" target="_blank" href="https://yandex.ru/maps">Яндекс Карты</a>, <a class="link" target="_blank" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a></div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-center text-center pt-5">
+                                  <img src="/images/meshtastic-icon.png" class="mч-auto w-16 h-16 rounded mb-1"/>
+                                </div>
+
+                                <!-- dismiss button -->
+                                <div class="mx-auto p-2">
+                                    <a href="javascript:void(0)" @click="dismissInfoModal">
+                                        <div class="border border-gray-200 hover:bg-gray-100 px-6 py-2 rounded-4px">
+                                            Закрыть
+                                        </div>
+                                    </a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+    </div>
+
+    <!-- hardware models sidebar -->
+    <div class="relative z-sidebar" role="dialog" aria-modal="true">
+
+        <!-- overlay -->
+        <transition
+                enter-active-class="transition-opacity duration-300 ease-linear"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-300 ease-linear"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+            <div v-show="isShowingHardwareModels" @click="isShowingHardwareModels = !isShowingHardwareModels" class="fixed inset-0 bg-gray-900 bg-opacity-75"></div>
+        </transition>
+
+        <!-- sidebar -->
+        <transition
+                enter-active-class="transition duration-300 ease-in-out transform"
+                enter-from-class="-translate-x-full"
+                enter-to-class="translate-x-0"
+                leave-active-class="transition duration-300 ease-in-out transform"
+                leave-from-class="translate-x-0"
+                leave-to-class="-translate-x-full">
+            <div v-show="isShowingHardwareModels" class="fixed top-0 left-0 bottom-0">
+                <div class="w-screen max-w-md overflow-hidden">
+                    <div class="flex h-full flex-col bg-white shadow-xl tooltip-window">
+
+                        <!-- slideover header -->
+                        <div class="p-2 border-b border-gray-200 shadow">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h2 class="font-bold">Устройства Meshtastic</h2>
+                                    <h3 class="text-sm">Отсортированы по популярности</h3>
+                                </div>
+                                <div class="my-auto ml-3 flex h-7 items-center">
+                                    <a href="javascript:void(0)" class="rounded-full" @click="isShowingHardwareModels = !isShowingHardwareModels">
+                                        <div class="hover:bg-gray-100 p-2 round-button">
+                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M18 6l-12 12"></path>
+                                                <path d="M6 6l12 12"></path>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- list of hardware models -->
+                        <ul role="list" class="flex-1 divide-y divide-gray-200 overflow-y-auto">
+                          <li v-for="hardwareModel of hardwareModelStats">
+                            <div class="group relative flex items-center">
+                              <a href="#" class="block flex-1 px-4 py-2">
+                                <div class="absolute inset-0 group-hover:bg-gray-100" aria-hidden="true"></div>
+                                <div class="relative flex min-w-0 flex-1 items-center">
+                                  <span class="relative inline-block flex-shrink-0 mr-4">
+                                    <img class="h-20 w-20 rounded object-contain img-lazy-load" :data-src="`/images/devices/${hardwareModel.hardware_model_name}.png`" alt="" onerror="if(this.src != '/images/no_image.png') this.src = '/images/no_image.png';" loading="lazy" />
+                                  </span>
+                                  <div class="truncate">
+                                    <p class="truncate text-sm font-medium text-gray-900">{{ hardwareModel.hardware_model_name }}</p>
+                                    <p class="truncate text-sm text-gray-500">{{ hardwareModel.count }} шт. на карте</p>
+                                  </div>
+                                </div>
+                              </a>
+                            </div>
+                          </li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+    </div>
+
+    <!-- node info sidebar -->
+    <div class="relative z-sidebar" role="dialog" aria-modal="true">
+
+        <!-- overlay -->
+        <transition
+                enter-active-class="transition-opacity duration-300 ease-linear"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-300 ease-linear"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+            <div v-show="selectedNode != null" @click="selectedNode = null" class="fixed inset-0 bg-gray-900 bg-opacity-75"></div>
+        </transition>
+
+        <!-- sidebar -->
+        <transition
+                enter-active-class="transition duration-300 ease-in-out transform"
+                enter-from-class="-translate-x-full"
+                enter-to-class="translate-x-0"
+                leave-active-class="transition duration-300 ease-in-out transform"
+                leave-from-class="translate-x-0"
+                leave-to-class="-translate-x-full">
+            <div v-show="selectedNode != null" class="fixed top-0 left-0 bottom-0">
+                <div v-if="selectedNode != null" class="w-screen max-w-md overflow-hidden">
+                    <div class="flex h-full flex-col bg-white shadow-xl tooltip-window">
+
+                        <!-- slideover header -->
+                        <div class="p-2 border-b border-gray-200 shadow">
+                          <div class="flex">
+                            <div class="my-auto mr-2 node-short-name" :title="`${selectedNode.role_name}`" :class="`${getNodeRoleClass(selectedNode.role_name) + ' x-node-short_name-'+ selectedNode.node_id}`">
+                              {{ selectedNode.short_name }}
+                            </div>
+                            <div class="my-auto mr-auto">
+                              <h2 class="font-bold">{{ selectedNode.long_name }}</h2>
+                            </div>
+                            <div class="my-auto ml-2 flex h-7 items-center space-x-2">
+                              <a href="javascript:void(0)" class="rounded-full" @click="copyShareLinkForNode(selectedNode.node_id)">
+                                <div class="hover:bg-gray-100 p-2 round-button">
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256" class="size-4">
+                                    <path d="M216,112v96a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V112A16,16,0,0,1,56,96H80a8,8,0,0,1,0,16H56v96H200V112H176a8,8,0,0,1,0-16h24A16,16,0,0,1,216,112ZM93.66,69.66,120,43.31V136a8,8,0,0,0,16,0V43.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,69.66Z"></path>
+                                  </svg>
+                                </div>
+                              </a>
+                              <a href="javascript:void(0)" class="rounded-full" @click="selectedNode = null">
+                                <div class="hover:bg-gray-100 p-2 round-button">
+                                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M18 6l-12 12"></path>
+                                    <path d="M6 6l12 12"></path>
+                                  </svg>
+                                </div>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="overflow-y-auto">
+
+                          <!-- no position banner -->
+                          <div v-if="findNodeMarkerById(selectedNode.node_id) == null" class="flex bg-orange-500 text-white p-2">
+                            <div class="my-auto mr-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                <path fill-rule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" />
+                              </svg>
+                            </div>
+                            <div class="my-auto">Это устройство не отправило координат.</div>
+                          </div>
+
+                          <div class="flex flex-col my-2">
+                            <div class="mx-auto">
+                              <img class="h-48 w-48 rounded object-contain" :src="`/images/devices/${selectedNode.hardware_model_name}.png`" alt="" onerror="if(this.src != '/images/no_image.png') this.src = '/images/no_image.png';" loading="lazy" />
+                            </div>
+                          </div>
+
+                          <!-- action buttons -->
+                          <!--<div class="flex space-x-6 p-2 justify-center">-->
+
+                              <!-- sent messages -->
+                              <!--<a target="_blank" :href="`/api/v1/text-messages/embed?from=${selectedNode.node_id}`" class="flex flex-col" title="Messages sent from this Node">
+                                  <div class="flex mx-auto mb-1">
+                                      <div class="bg-gray-100 hover:bg-gray-200 p-2 rounded-full">
+                                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                              <path stroke-linecap="round" stroke-linejoin="round" d="m15 11.25-3-3m0 0-3 3m3-3v7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                          </svg>
+                                      </div>
+                                  </div>
+                                  <div class="mx-auto text-sm font-medium text-gray-900">Отправленные сообщения</div>
+                              </a>-->
+
+                              <!-- received messages -->
+                              <!--<a target="_blank" :href="`/api/v1/text-messages/embed?to=${selectedNode.node_id}`" class="flex flex-col" title="Messages sent to this Node">
+                                  <div class="flex mx-auto mb-1">
+                                      <div class="bg-gray-100 hover:bg-gray-200 p-2 rounded-full">
+                                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                              <path stroke-linecap="round" stroke-linejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                          </svg>
+                                      </div>
+                                  </div>
+                                  <div class="mx-auto text-sm font-medium text-gray-900">Полученные сообщения</div>
+                              </a>-->
+
+                              <!-- gated messages -->
+                              <!--<a target="_blank" :href="`/api/v1/text-messages/embed?gateway_id=${selectedNode.node_id}`" class="flex flex-col" title="Messages gated to MQTT by this Node">
+                                  <div class="flex mx-auto mb-1">
+                                      <div class="bg-gray-100 hover:bg-gray-200 p-2 rounded-full">
+                                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+                                          </svg>
+                                      </div>
+                                  </div>
+                                  <div class="mx-auto text-sm font-medium text-gray-900">Транслированные сообщения</div>
+                              </a>-->
+
+                          <!--</div>-->
+
+                            <!-- details -->
+                            <div>
+                                <div class="device-details-section bg-gray-200 p-2 font-semibold">Подробности</div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+
+                                    <!-- id -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">ID</div>
+                                        <div class="ml-auto text-sm text-gray-700">{{ selectedNode.node_id }}</div>
+                                    </li>
+
+                                    <!-- hex id -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Hex ID</div>
+                                        <div class="ml-auto text-sm text-gray-700">{{ selectedNode.node_id_hex }}</div>
+                                    </li>
+
+                                    <!-- role -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Роль</div>
+                                        <div class="ml-auto text-sm text-gray-700">{{ selectedNode.role_name }}</div>
+                                    </li>
+
+                                    <!-- hardware -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Модель оборудования</div>
+                                        <div class="ml-auto text-sm text-gray-700">{{ selectedNode.hardware_model_name }}</div>
+                                    </li>
+
+                                    <!-- firmware version -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Прошивка</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.firmware_version">{{ selectedNode.firmware_version }}</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- public_key -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Публичный ключ</div>
+                                        <div class="ml-auto text-sm text-gray-700 text-right" style="word-wrap: break-word; max-width: 70%;">{{ selectedNode.public_key }}</div>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                            <!-- lora config -->
+                            <div>
+                                <div class="device-details-section bg-gray-200 p-2 font-semibold">Конфигурация LoRa</div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+
+                                    <!-- region -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Регион</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.region_name">{{ selectedNode.region_name }} {{ selectedNode.region_frequency }}</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- modem preset -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Шаблон модема</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.modem_preset_name">{{ selectedNode.modem_preset_name }}</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- has default channel -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Есть канал по-умолчанию</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.has_default_channel != null">{{ selectedNode.has_default_channel ? "Yes" : "No" }}</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                            <!-- position -->
+                            <div>
+                                <div @click.stop class="device-details-section flex bg-gray-200 p-2 font-semibold">
+                                    <div class="my-auto">Местоположение</div>
+                                    <div class="ml-auto">
+                                        <button @click="showNodePositionHistory(selectedNode.node_id)" type="button" class="rect-button px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                            Показать историю
+                                        </button>
+                                    </div>
+                                </div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+
+                                    <!-- position -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Шир/Дол</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.latitude && selectedNode.longitude">{{ selectedNode.latitude }}, {{ selectedNode.longitude }}</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- altitude -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Высота</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.altitude">{{ selectedNode.altitude }}м</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                            <!-- device metrics -->
+                            <div>
+                                <div class="device-details-section flex bg-gray-200 p-2 font-semibold">
+                                    <div class="my-auto">Метрики устройства</div>
+                                    <div class="my-auto ml-auto">
+                                        <select v-model="deviceMetricsTimeRange" class="block w-full rect-button border-0 py-0.5 pl-2 pr-8 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6">
+                                            <option value="1d">1 день</option>
+                                            <option value="3d">3 дня</option>
+                                            <option value="7d">7 дней</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+
+                                    <!-- device metrics chart -->
+                                    <li>
+                                        <div class="px-4 py-2">
+                                            <div class="w-full">
+                                                <canvas id="deviceMetricsChart" style="height:150px;"></canvas>
+                                                <div class="flex">
+                                                    <div class="mx-auto flex space-x-2">
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Заряд</div>
+                                                        </div>
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-green-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Ch Util</div>
+                                                        </div>
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-orange-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Air Util TX</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                    <!-- battery level -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Заряд батареи</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.battery_level">
+                                                <span v-if="selectedNode.battery_level > 100">Заряжается</span>
+                                                <span v-else>{{ selectedNode.battery_level }}%</span>
+                                            </span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- voltage -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Напряжение</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.voltage">{{ Number(selectedNode.voltage).toFixed(2) }}V</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- channel utilization -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Загрузка канала (Ch Util)</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.channel_utilization">{{ Number(selectedNode.channel_utilization).toFixed(2) }}%</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- air util tx -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Загрузка передачи (Air Util Tx)</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.air_util_tx">{{ Number(selectedNode.air_util_tx).toFixed(2) }}%</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- air util tx -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Время непрерывной работы</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.uptime_seconds">{{ formatUptimeSeconds(selectedNode.uptime_seconds) }}</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                            <!-- environment metrics -->
+                            <div>
+                                <div class="device-details-section flex bg-gray-200 p-2 font-semibold">
+                                    <div class="my-auto">Метрики окружения</div>
+                                    <div class="my-auto ml-auto">
+                                        <select v-model="environmentMetricsTimeRange" class="block w-full rect-button border-0 py-0.5 pl-2 pr-8 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6">
+                                            <option value="1d">1 день</option>
+                                            <option value="3d">3 дня</option>
+                                            <option value="7d">7 дней</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+
+                                    <!-- environment metrics chart -->
+                                    <li>
+                                        <div class="px-4 py-2">
+                                            <div class="w-full">
+                                                <canvas id="environmentMetricsChart" style="height:150px;"></canvas>
+                                                <div class="flex">
+                                                    <div class="mx-auto flex space-x-2">
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Температура</div>
+                                                        </div>
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-green-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Влажность</div>
+                                                        </div>
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-orange-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Давление</div>
+                                                        </div>
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-orange-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Радиация</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                    <!-- temperature -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Температура</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.temperature">{{ formatTemperature(selectedNode.temperature) }}</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- relative humidity -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Относительная влажность</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.relative_humidity">{{ Number(selectedNode.relative_humidity).toFixed(0) }}%</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- barometric pressure -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Барометрическое давление</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.barometric_pressure">{{ Number(selectedNode.barometric_pressure).toFixed(1) }}гПа</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- radiation -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Радиация</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.barometric_pressure">{{ Number(selectedNode.radiation).toFixed(1) }}мкР/ч</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                            <!-- power metrics -->
+                            <div>
+                                <div class="device-details-section flex bg-gray-200 p-2 font-semibold">
+                                    <div class="my-auto">Метрики питания</div>
+                                    <div class="my-auto ml-auto">
+                                        <select v-model="powerMetricsTimeRange" class="block w-full rect-button border-0 py-0.5 pl-2 pr-8 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6">
+                                            <option value="1d">1 день</option>
+                                            <option value="3d">3 дня</option>
+                                            <option value="7d">7 дней</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+
+                                    <!-- power metrics chart -->
+                                    <li>
+                                        <div class="px-4 py-2">
+                                            <div class="w-full">
+                                                <canvas id="powerMetricsChart" style="height:150px;"></canvas>
+                                                <div class="flex">
+                                                    <div class="mx-auto flex space-x-2">
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Канал 1</div>
+                                                        </div>
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-green-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Канал 2</div>
+                                                        </div>
+                                                        <div class="flex mx-auto">
+                                                            <div class="my-auto w-2 h-2 bg-orange-500 rounded-full"></div>
+                                                            <div class="my-auto ml-1 text-sm text-gray-500">Канал 3</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                    <!-- channel 1 -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Канал 1</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNodeLatestPowerMetric">
+                                                <span v-if="selectedNodeLatestPowerMetric?.ch1_voltage">{{ Number(selectedNodeLatestPowerMetric.ch1_voltage).toFixed(2) }}В</span>
+                                                <span v-else>???</span>
+                                                <span v-if="selectedNodeLatestPowerMetric?.ch1_current"> / {{ Number(selectedNodeLatestPowerMetric.ch1_current).toFixed(2) }}мА</span>
+                                            </span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- channel 2 -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Канал 2</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNodeLatestPowerMetric">
+                                                <span v-if="selectedNodeLatestPowerMetric?.ch2_voltage">{{ Number(selectedNodeLatestPowerMetric.ch2_voltage).toFixed(2) }}В</span>
+                                                <span v-else>???</span>
+                                                <span v-if="selectedNodeLatestPowerMetric?.ch2_current"> / {{ Number(selectedNodeLatestPowerMetric.ch2_current).toFixed(2) }}мА</span>
+                                            </span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- channel 3 -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Канал 3</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNodeLatestPowerMetric">
+                                                <span v-if="selectedNodeLatestPowerMetric?.ch3_voltage">{{ Number(selectedNodeLatestPowerMetric.ch3_voltage).toFixed(2) }}В</span>
+                                                <span v-else>???</span>
+                                                <span v-if="selectedNodeLatestPowerMetric?.ch3_current"> / {{ Number(selectedNodeLatestPowerMetric.ch3_current).toFixed(2) }}мА</span>
+                                            </span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                            <!-- mqtt -->
+                            <!--<div>
+                                <div class="bg-gray-200 p-2">
+                                    <div class="font-semibold">MQTT</div>
+                                    <div class="text-sm text-gray-600">Количество топиков, куда устройство отправило данные</div>
+                                </div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+                                    <template v-if="selectedNodeMqttMetrics.length > 0">
+                                        <li v-for="mqttMetric of selectedNodeMqttMetrics">
+                                            <div class="relative flex items-center">
+                                                <div class="block flex-1 px-4 py-2">
+                                                    <div class="relative flex min-w-0 flex-1 items-center">
+                                                        <div class="truncate">
+                                                            <p class="truncate text-sm font-medium text-gray-900">{{ mqttMetric.mqtt_topic }}</p>
+                                                            <div class="text-sm text-gray-700">Последняя отправка {{ moment(new Date(mqttMetric.last_packet_at)).fromNow() }}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </template>
+                                    <template v-else>
+                                        <li>
+                                            <div class="relative flex items-center">
+                                                <div class="block flex-1 px-4 py-2">
+                                                    <div class="relative flex min-w-0 flex-1 items-center">
+                                                        <div class="truncate">
+                                                            <div class="text-sm text-gray-700">Данных в MQTT не обнаружено</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>-->
+
+                            <!-- traceroutes -->
+                            <div>
+                                <div class="device-details-section bg-gray-200 p-2">
+                                    <div class="font-semibold">Трассировки</div>
+                                    <div class="text-sm text-gray-600">Показаны 5 последних</div>
+                                </div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+                                    <template v-if="selectedNodeTraceroutes.length > 0">
+                                        <li @click="showTraceRoute(traceroute)" v-for="traceroute of selectedNodeTraceroutes">
+                                            <div class="relative flex items-center">
+                                                <div class="block flex-1 px-4 py-2">
+                                                    <div class="relative flex min-w-0 flex-1 items-center">
+                                                        <div>
+                                                            <p class="text-sm text-gray-900"><span class="font-medium">{{ findNodeById(traceroute.to)?.long_name || '???' }}</span> к <span class="font-medium">{{ findNodeById(traceroute.from)?.long_name || '???' }}</span></p>
+                                                            <div class="text-sm text-gray-700">{{ moment(new Date(traceroute.updated_at)).fromNow() }} - {{ traceroute.route.length }} прыжков {{ traceroute.channel_id ? `для ${traceroute.channel_id}` : '' }}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </template>
+                                    <template v-else>
+                                        <li>
+                                            <div class="relative flex items-center">
+                                                <div class="block flex-1 px-4 py-2">
+                                                    <div class="relative flex min-w-0 flex-1 items-center">
+                                                        <div class="truncate">
+                                                            <div class="text-sm text-gray-700">Трассировок в MQTT не обнаружено</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+
+                            <!-- other -->
+                            <div>
+                                <div class="device-details-section bg-gray-200 p-2 font-semibold">Другое</div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+
+                                    <!-- first seen -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Первое появление</div>
+                                        <div class="ml-auto text-sm text-gray-700">{{ moment(new Date(selectedNode.created_at)).fromNow() }}</div>
+                                    </li>
+
+                                    <!-- last seen -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Появлялся последний раз</div>
+                                        <div class="ml-auto text-sm text-gray-700">{{ moment(new Date(selectedNode.updated_at)).fromNow() }}</div>
+                                    </li>
+
+                                    <!-- neighbours updated -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Соседи обновлены</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.neighbours_updated_at">{{ moment(new Date(selectedNode.neighbours_updated_at)).fromNow() }}</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                    <!-- position updated -->
+                                    <li class="flex p-3">
+                                        <div class="text-sm font-medium text-gray-900">Позиция обновлена</div>
+                                        <div class="ml-auto text-sm text-gray-700">
+                                            <span v-if="selectedNode.position_updated_at">{{ moment(new Date(selectedNode.position_updated_at)).fromNow() }}</span>
+                                            <span v-else>???</span>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                            <!-- share -->
+                            <div>
+                                <div class="device-details-section flex bg-gray-200 p-2 font-semibold">
+                                    <div class="my-auto">Поделиться</div>
+                                    <div class="ml-auto">
+                                        <button @click="copyShareLinkForNode(selectedNode.node_id)" type="button" class="rect-button px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                            Копировать
+                                        </button>
+                                    </div>
+                                </div>
+                                <ul role="list" class="flex-1 divide-y divide-gray-200">
+
+                                    <li>
+                                        <div class="relative flex items-center">
+                                            <div class="block flex-1 p-2">
+                                                <div class="flex space-x-2">
+                                                    <input type="text" readonly class="text-input border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" :value="getShareLinkForNode(selectedNode.node_id)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+    </div>
+
+    <!-- traceroute info sidebar -->
+    <div class="relative z-sidebar" role="dialog" aria-modal="true">
+
+        <!-- overlay -->
+        <transition
+                enter-active-class="transition-opacity duration-300 ease-linear"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-300 ease-linear"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+            <div v-show="selectedTraceRoute != null" @click="selectedTraceRoute = null" class="fixed inset-0 bg-gray-900 bg-opacity-75"></div>
+        </transition>
+
+        <!-- sidebar -->
+        <transition
+                enter-active-class="transition duration-300 ease-in-out transform"
+                enter-from-class="-translate-x-full"
+                enter-to-class="translate-x-0"
+                leave-active-class="transition duration-300 ease-in-out transform"
+                leave-from-class="translate-x-0"
+                leave-to-class="-translate-x-full">
+            <div v-show="selectedTraceRoute != null" class="fixed top-0 left-0 bottom-0">
+                <div v-if="selectedTraceRoute != null" class="w-screen max-w-md overflow-hidden">
+                    <div class="flex h-full flex-col bg-white shadow-xl">
+
+                        <!-- slideover header -->
+                        <div class="p-2 border-b border-gray-200 shadow">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h2 class="font-bold">Трассировка #{{ selectedTraceRoute.id }}</h2>
+                                    <h3 class="text-sm">{{ moment(new Date(selectedTraceRoute.updated_at)).fromNow() }} - {{ selectedTraceRoute.route.length }} прыжков {{ selectedTraceRoute.channel_id ? `для ${selectedTraceRoute.channel_id}` : '' }}</h3>
+                                </div>
+                                <div class="my-auto ml-3 flex h-7 items-center">
+                                    <a href="javascript:void(0)" class="rounded-full" @click="selectedTraceRoute = null">
+                                        <div class="bg-gray-100 hover:bg-gray-200 p-2 round-button">
+                                            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M18 6l-12 12"></path>
+                                                <path d="M6 6l12 12"></path>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-y-auto">
+
+                            <!-- details -->
+                            <div class="p-2">
+                                <ul role="list" class="space-y-3">
+
+                                    <!-- node that initiated traceroute -->
+                                    <li :onclick="`goToNode(${selectedTraceRoute.to})`" class="relative flex gap-x-4">
+                                        <div class="absolute left-0 top-0 flex w-12 justify-center top-3 -bottom-3">
+                                            <div class="w-px bg-gray-200"></div>
+                                        </div>
+                                        <div class="my-auto relative flex flex-none items-center justify-center">
+                                            <div>
+                                                <div class="flex rounded-full h-12 w-12 text-white shadow" :class="[ `bg-[${getNodeColour(selectedTraceRoute.to)}]`, `text-[${getNodeTextColour(selectedTraceRoute.to)}]` ]">
+                                                    <div class="mx-auto my-auto drop-shadow-sm">{{ findNodeById(selectedTraceRoute.to)?.short_name ?? "?" }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex-auto py-0.5 text-sm leading-5 text-gray-500">
+                                            <div class="font-medium text-gray-900">{{ findNodeById(selectedTraceRoute.to)?.long_name || '???' }}</div>
+                                            <div>Hex ID: !{{ Number(selectedTraceRoute.to).toString(16) }}</div>
+                                            <div>Начал трассировку</div>
+                                        </div>
+                                    </li>
+
+                                    <!-- middleman nodes -->
+                                    <li :onclick="`goToNode(${route})`" v-for="route of selectedTraceRoute.route" class="relative flex gap-x-4">
+                                        <div class="absolute left-0 top-0 flex w-12 justify-center -bottom-3">
+                                            <div class="w-px bg-gray-200"></div>
+                                        </div>
+                                        <div class="my-auto relative flex flex-none items-center justify-center">
+                                            <div>
+                                                <div class="flex rounded-full h-12 w-12 text-white shadow" :class="[ `bg-[${getNodeColour(route)}]`, `text-[${getNodeTextColour(route)}]` ]">
+                                                    <div class="mx-auto my-auto drop-shadow-sm">{{ findNodeById(route)?.short_name ?? "?" }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex-auto py-0.5 text-sm leading-5 text-gray-500">
+                                            <div class="font-medium text-gray-900">{{ findNodeById(route)?.long_name || '???' }}</div>
+                                            <div>Hex ID: !{{ Number(route).toString(16) }}</div>
+                                            <div>Переслал пакет данных</div>
+                                        </div>
+                                    </li>
+
+                                    <!-- node that replied to traceroute -->
+                                    <li :onclick="`goToNode(${selectedTraceRoute.from})`" v-if="selectedTraceRoute.from" class="relative flex gap-x-4">
+                                        <div class="absolute left-0 top-0 flex w-12 justify-center -bottom-3">
+                                            <div class="w-px bg-gray-200"></div>
+                                        </div>
+                                        <div class="my-auto relative flex flex-none items-center justify-center">
+                                            <div>
+                                                <div class="flex rounded-full h-12 w-12 text-white shadow" :class="[ `bg-[${getNodeColour(selectedTraceRoute.from)}]`, `text-[${getNodeTextColour(selectedTraceRoute.from)}]` ]">
+                                                    <div class="mx-auto my-auto drop-shadow-sm">{{ findNodeById(selectedTraceRoute.from)?.short_name ?? "?" }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex-auto py-0.5 text-sm leading-5 text-gray-500">
+                                            <div class="font-medium text-gray-900">{{ findNodeById(selectedTraceRoute.from)?.long_name || '???' }}</div>
+                                            <div>Hex ID: !{{ Number(selectedTraceRoute.from).toString(16) }}</div>
+                                            <div>Ответил на трассировку</div>
+                                        </div>
+                                    </li>
+
+                                    <!-- node that gated traceroute to mqtt -->
+                                    <li :onclick="`goToNode(${selectedTraceRoute.gateway_id})`" v-if="selectedTraceRoute.gateway_id" class="relative flex gap-x-4">
+                                        <div class="absolute left-0 top-0 flex w-12 justify-center h-6">
+                                            <div class="w-px bg-gray-200"></div>
+                                        </div>
+                                        <div class="my-auto relative flex flex-none items-center justify-center">
+                                            <div>
+                                                <div class="flex rounded-full h-12 w-12 text-white shadow" :class="[ `bg-[${getNodeColour(selectedTraceRoute.gateway_id)}]`, `text-[${getNodeTextColour(selectedTraceRoute.gateway_id)}]` ]">
+                                                    <div class="mx-auto my-auto drop-shadow-sm">{{ findNodeById(selectedTraceRoute.gateway_id)?.short_name ?? "?" }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex-auto py-0.5 text-sm leading-5 text-gray-500">
+                                            <div class="font-medium text-gray-900">{{ findNodeById(selectedTraceRoute.gateway_id)?.long_name || '???' }}</div>
+                                            <div>Hex ID: !{{ Number(selectedTraceRoute.gateway_id).toString(16) }}</div>
+                                            <div>Отправил данные в MQTT</div>
+                                        </div>
+                                    </li>
+
+                                </ul>
+
+                            </div>
+
+                            <div>
+                                <div class="bg-gray-200 p-2 font-semibold">Raw Data</div>
+                                <div class="text-sm text-gray-700">
+                                    <pre class="bg-gray-100 rounded p-2 overflow-x-auto">{{ JSON.stringify(selectedTraceRoute, null, 4) }}</pre>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+    </div>
+
+    <!-- settings sidebar -->
+    <div class="relative z-sidebar" role="dialog" aria-modal="true">
+
+        <!-- overlay -->
+        <transition
+                enter-active-class="transition-opacity duration-300 ease-linear"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-300 ease-linear"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+            <div v-show="isShowingSettings" @click="isShowingSettings = !isShowingSettings" class="fixed inset-0 bg-gray-900 bg-opacity-75"></div>
+        </transition>
+
+        <!-- sidebar -->
+        <transition
+                enter-active-class="transition duration-300 ease-in-out transform"
+                enter-from-class="-translate-x-full"
+                enter-to-class="translate-x-0"
+                leave-active-class="transition duration-300 ease-in-out transform"
+                leave-from-class="translate-x-0"
+                leave-to-class="-translate-x-full">
+            <div v-show="isShowingSettings" class="fixed top-0 left-0 bottom-0">
+                <div v-if="isShowingSettings" class="w-screen max-w-md overflow-hidden">
+                    <div class="flex h-full flex-col bg-white shadow-xl tooltip-window">
+
+                        <!-- slideover header -->
+                        <div class="p-2 border-b border-gray-200 shadow">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h2 class="font-bold">Настройки</h2>
+                                    <h3 class="text-sm">Настройки сохраняются локально в этом браузере.</h3>
+                                </div>
+                                <div class="my-auto ml-3 flex h-7 items-center">
+                                    <a href="javascript:void(0)" class="rounded-full" @click="isShowingSettings = false">
+                                        <div class="hover:bg-gray-100 p-2 round-button">
+                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M18 6l-12 12"></path>
+                                                <path d="M6 6l12 12"></path>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-y-auto divide-y divide-gray-200">
+
+                            <!-- configNodesMaxAgeInSeconds -->
+                            <div class="p-2">
+                                <label class="block text-sm font-medium text-gray-900">Срок жизни нод</label>
+                                <div class="text-xs text-gray-600 mb-2">Ноды, которые не обновлялись указанное время, будут скрыты. Обновите страницу для применения параметра.</div>
+                                <select v-model="configNodesMaxAgeInSeconds" class="text-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option :value="null">Показать все</option>
+                                    <option value="900">15 минут</option>
+                                    <option value="1800">30 минут</option>
+                                    <option value="3600">1 час</option>
+                                    <option value="10800">3 часа</option>
+                                    <option value="21600">6 часов</option>
+                                    <option value="43200">12 часов</option>
+                                    <option value="86400">24 часа</option>
+                                    <option value="172800">2 дня</option>
+                                    <option value="259200">3 дня</option>
+                                    <option value="345600">4 дня</option>
+                                    <option value="432000">5 дней</option>
+                                    <option value="518400">6 дней</option>
+                                    <option value="604800">7 дней</option>
+                                </select>
+                            </div>
+
+                            <!-- configNodesDisconnectedAgeInSeconds -->
+                            <div class="p-2">
+                                <label class="block text-sm font-medium text-gray-900">Срок перевода ноды в статус "Отключены"</label>
+                                <div class="text-xs text-gray-600 mb-2">Ноды, которые не отправляли данные или свое местоположение на MQTT-сервер больше указанного времени, будут отображаться с восклицательным знаком (!).</div>
+                                <select v-model="configNodesDisconnectedAgeInSeconds" class="text-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="900">15 минут</option>
+                                    <option value="1800">30 минут</option>
+                                    <option value="2700">45 минут</option>
+                                    <option value="3600">1 час</option>
+                                    <option value="7200">2 часа</option>
+                                    <option value="10800">3 часа</option>
+                                    <option value="21600">6 часов</option>
+                                    <option value="43200">12 часов</option>
+                                    <option value="86400">24 часа</option>
+                                    <option value="172800">2 дня</option>
+                                    <option value="259200">3 дня</option>
+                                    <option value="345600">4 дня</option>
+                                    <option value="432000">5 дней</option>
+                                    <option value="518400">6 дней</option>
+                                    <option value="604800">7 дней</option>
+                                </select>
+                            </div>
+
+                            <!-- configNodesOfflineAgeInSeconds -->
+                            <div class="p-2">
+                                <label class="block text-sm font-medium text-gray-900">Срок перевода ноды в статус "Не в сети"</label>
+                                <div class="text-xs text-gray-600 mb-2">Ноды, которые не обновлялись указанное время, будут отображаться серой меткой. Обновите страницу для применения параметра.</div>
+                                <select v-model="configNodesOfflineAgeInSeconds" class="text-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option :value="null">Не показывать ноды как "не в сети"</option>
+                                    <option value="900">15 минут</option>
+                                    <option value="1800">30 минут</option>
+                                    <option value="2700">45 минут</option>
+                                    <option value="3600">1 час</option>
+                                    <option value="7200">2 часа</option>
+                                    <option value="10800">3 часа</option>
+                                    <option value="21600">6 часов</option>
+                                    <option value="43200">12 часов</option>
+                                    <option value="86400">24 часа</option>
+                                    <option value="172800">2 дня</option>
+                                    <option value="259200">3 дня</option>
+                                    <option value="345600">4 дня</option>
+                                    <option value="432000">5 дней</option>
+                                    <option value="518400">6 дней</option>
+                                    <option value="604800">7 дней</option>
+                                </select>
+                            </div>
+
+                            <!-- configWaypointsMaxAgeInSeconds -->
+                            <!--<div class="p-2">
+                                <label class="block text-sm font-medium text-gray-900">Срок жизни точек на маршруте</label>
+                                <div class="text-xs text-gray-600 mb-2">Точки маршрута старее будут скрыты. Обновите страницу для применения параметра.</div>
+                                <select v-model="configWaypointsMaxAgeInSeconds" class="text-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option :value="null">Показать все</option>
+                                    <option value="900">15 минут</option>
+                                    <option value="1800">30 минут</option>
+                                    <option value="3600">1 час</option>
+                                    <option value="10800">3 часа</option>
+                                    <option value="21600">6 часов</option>
+                                    <option value="43200">12 часов</option>
+                                    <option value="86400">24 часа</option>
+                                    <option value="172800">2 дня</option>
+                                    <option value="259200">3 дня</option>
+                                    <option value="345600">4 дня</option>
+                                    <option value="432000">5 дней</option>
+                                    <option value="518400">6 дней</option>
+                                    <option value="604800">7 дней</option>
+                                </select>
+                            </div>-->
+
+                            <!-- configNeighboursMaxDistanceInMeters -->
+                            <div class="p-2">
+                                <label class="block text-sm font-medium text-gray-900">Максимальное расстояние до соседей (метры)</label>
+                                <div class="text-xs text-gray-600 mb-2">Ноды дальше указанного растояния от выбранной будут скрыты. Обновите страницу для применения параметра.</div>
+                                <input type="number" v-model="configNeighboursMaxDistanceInMeters" class="text-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            </div>
+
+                            <!-- configZoomLevelGoToNode -->
+                            <div class="p-2">
+                                <label class="block text-sm font-medium text-gray-900">Уровень увеличения (переход к ноде)</label>
+                                <div class="text-xs text-gray-600 mb-2">На сколько близкий масштаб использовать при переходе к ноде.</div>
+                                <input type="number" v-model="configZoomLevelGoToNode" class="text-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            </div>
+
+                            <!-- configTemperatureFormat -->
+                            <div class="p-2">
+                                <label class="block text-sm font-medium text-gray-900">Шкала температуры</label>
+                                <div class="text-xs text-gray-600 mb-2">Показания будут отображены в выбранной шкале градусов.</div>
+                                <select v-model="configTemperatureFormat" class="text-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="celsius">Цельсия (°C)</option>
+                                    <option value="fahrenheit">Фаренгейта (°F)</option>
+                                </select>
+                            </div>
+
+                            <!-- configGrayscaleMap -->
+                            <div class="p-2">
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input type="checkbox" v-model="configGrayscaleMap" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300" required>
+                                    </div>
+                                    <label class="ml-2 text-sm font-medium text-gray-900">Карта в серых тонах</label>
+                                </div>
+                                <div class="text-xs text-gray-600">Включает наложение 60% серого фильтра на карту.</div>
+                            </div>
+
+                            <!-- configEnableMapAnimations -->
+                            <div class="p-2">
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input type="checkbox" v-model="configEnableMapAnimations" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300" required>
+                                    </div>
+                                    <label class="ml-2 text-sm font-medium text-gray-900">Включить анимации на карте</label>
+                                </div>
+                                <div class="text-xs text-gray-600">Карта будет анимировать переход к ноде.</div>
+                            </div>
+
+                            <!-- configAutoUpdatePositionInUrl -->
+                            <div class="p-2">
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input type="checkbox" v-model="configAutoUpdatePositionInUrl" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300" required>
+                                    </div>
+                                    <label class="ml-2 text-sm font-medium text-gray-900">Авто-обновление местоположения в URL</label>
+                                </div>
+                                <div class="text-xs text-gray-600">Устанавливает координаты как параметры в адресе сайта.</div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+    </div>
+
+    <!-- node neighbours modal -->
+    <div class="relative z-sidebar" role="dialog" aria-modal="true">
+
+        <!-- sidebar -->
+        <transition
+                enter-active-class="transition duration-300 ease-in-out transform"
+                enter-from-class="translate-y-full"
+                enter-to-class="translate-y-0"
+                leave-active-class="transition duration-300 ease-in-out transform"
+                leave-from-class="translate-y-0"
+                leave-to-class="translate-y-full">
+            <div v-show="selectedNodeToShowNeighbours != null" class="fixed left-0 right-0 top-20">
+                <div v-if="selectedNodeToShowNeighbours != null" class="mx-auto w-screen max-w-md p-4">
+                    <div class="tooltip-window flex h-full flex-col shadow-xl">
+                        <div class="flex flex-row p-3">
+                          <div class="h-7 items-center" style="margin: -7px auto 0 -7px;">
+                            <a href="javascript:void(0)" class="rounded-full">
+                              <div class="hover:bg-gray-100 round-button back-tooltip" :data-node-id="`${selectedNodeToShowNeighbours.node_id}`">
+                                <svg class="city-title-shevron-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path class="city-title-shevron-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" stroke="#444" fill="transparent" d="M112 184l144 144 144-144"></path></svg>
+                              </div>
+                            </a>
+                          </div>
+
+                          <div class="text-center">
+                            <h2 class="font-bold text-md"><span class="node-short-name mono node-short-name_big16 node-short-name-navigate " :title="`${selectedNodeToShowNeighbours.long_name}`" :class="`${getNodeRoleClass(selectedNodeToShowNeighbours.role_name) + ' x-node-short_name-'+ selectedNodeToShowNeighbours.node_id}`">{{ selectedNodeToShowNeighbours.short_name }}</span> {{ selectedNodeToShowNeighbours.long_name }}</h2>
+                            <h3 v-if="selectedNodeToShowNeighboursType === 'we_heard'" class="text-sm">Слышал соседей</h3>
+                            <h3 v-if="selectedNodeToShowNeighboursType === 'heard_us'" class="text-sm">Соседи слышали</h3>
+                          </div>
+
+                          <div class="h-7 items-center" style="margin: -7px -7px 0 auto;">
+                            <a href="javascript:void(0)" class="rounded-full" @click="dismissShowingNodeNeighbours">
+                              <div class="hover:bg-gray-100 round-button">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                  <path d="M18 6l-12 12"></path>
+                                  <path d="M6 6l12 12"></path>
+                                </svg>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+    </div>
+
+    <!-- node position history modal -->
+    <div class="relative z-sidebar" role="dialog" aria-modal="true">
+
+        <!-- sidebar -->
+        <transition
+                enter-active-class="transition duration-300 ease-in-out transform"
+                enter-from-class="translate-y-full"
+                enter-to-class="translate-y-0"
+                leave-active-class="transition duration-300 ease-in-out transform"
+                leave-from-class="translate-y-0"
+                leave-to-class="translate-y-full">
+            <div v-show="selectedNodeToShowPositionHistory != null" class="fixed left-0 right-0 top-20">
+                <div v-if="selectedNodeToShowPositionHistory != null" class="mx-auto w-screen max-w-md p-4">
+                    <div class="tooltip-window flex h-full flex-col shadow-xl">
+                        <div>
+                            <div class="flex flex-row p-3">
+                                <!--<div class="flex my-auto mr-3 space-x-2">
+                                    <a href="javascript:void(0)" @click="isPositionHistoryModalExpanded = !isPositionHistoryModalExpanded" class="rounded-full">
+                                        <div class="hover:bg-gray-100 p-1 round-button">
+                                            <svg v-if="isPositionHistoryModalExpanded" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                            </svg>
+                                            <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </div>-->
+                                <div class="h-7 items-center" style="margin: -7px auto 0 -7px;">
+                                  <a href="javascript:void(0)" class="rounded-full">
+                                    <div class="hover:bg-gray-100 round-button back-tooltip" :data-node-id="`${selectedNodeToShowPositionHistory.node_id}`">
+                                      <svg class="city-title-shevron-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path class="city-title-shevron-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" stroke="#444" fill="transparent" d="M112 184l144 144 144-144"></path></svg>
+                                    </div>
+                                  </a>
+                                </div>
+
+                                <!--<div class="my-auto mr-auto font-bold"><span class="node-short-name mono node-short-name_big16 node-short-name-navigate " :title="`${selectedNodeToShowPositionHistory.long_name}`" :class="`${getNodeRoleClass(selectedNodeToShowPositionHistory.role_name) + ' x-node-short_name-'+ selectedNodeToShowPositionHistory.node_id}`">{{ selectedNodeToShowPositionHistory.short_name }}</span> &nbsp; История местоположения</div>-->
+
+                                <div class="my-auto text-center">
+                                  <h2 class="font-bold text-md"><span class="node-short-name mono node-short-name_big16 node-short-name-navigate " :title="`${selectedNodeToShowPositionHistory.long_name}`" :class="`${getNodeRoleClass(selectedNodeToShowPositionHistory.role_name) + ' x-node-short_name-'+ selectedNodeToShowPositionHistory.node_id}`">{{ selectedNodeToShowPositionHistory.short_name }}</span> {{ selectedNodeToShowPositionHistory.long_name }}</h2>
+                                  <h3 class="text-sm">История местоположения</h3>
+                                </div>
+
+                                <div class="h-7 items-center" style="margin: -7px -7px 0 auto;">
+                                  <a href="javascript:void(0)" class="rounded-full" @click="dismissShowingNodePositionHistory">
+                                    <div class="hover:bg-gray-100 round-button">
+                                      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M18 6l-12 12"></path>
+                                        <path d="M6 6l12 12"></path>
+                                      </svg>
+                                    </div>
+                                  </a>
+                                </div>
+
+                                <!--<div class="flex my-auto ml-3 space-x-2">
+                                    <a href="javascript:void(0)" class="rounded-full" @click="dismissShowingNodePositionHistory">
+                                        <div class="hover:bg-gray-100 p-1 round-button">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M18 6l-12 12"></path>
+                                                <path d="M6 6l12 12"></path>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </div>-->
+                            </div>
+                            <div v-if="isPositionHistoryModalExpanded" class="divide-y border-t">
+
+                                <!-- quick range -->
+                                <div class="flex p-3 space-x-2" style="padding-bottom: 0;">
+                                    <button @click="onPositionHistoryQuickRangeClick('1h')" type="button" class="w-full rect-button border px-2 py-1 text-sm hover:bg-gray-100 text-center">1 час</button>
+                                    <button @click="onPositionHistoryQuickRangeClick('24h')" type="button" class="w-full rect-button border px-2 py-1 text-sm hover:bg-gray-100 text-center">24 часа</button>
+                                    <button @click="onPositionHistoryQuickRangeClick('7d')" type="button" class="w-full rect-button border px-2 py-1 text-sm hover:bg-gray-100 text-center">7 дней</button>
+                                </div>
+
+                                <!-- manual range -->
+                                <div class="p-3 flex flex-row justify-center" style="border: none;">
+
+                                    <!-- from -->
+                                    <div style="max-width: 45%;">
+                                        <input v-model="positionHistoryDateTimeFrom" @change="loadNodePositionHistory(selectedNodeToShowPositionHistory.node_id)" type="datetime-local" class="text-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1 mx-auto">
+                                    </div>&nbsp; — &nbsp;<!-- to --><div style="max-width: 45%;">
+                                        <input v-model="positionHistoryDateTimeTo" @change="loadNodePositionHistory(selectedNodeToShowPositionHistory.node_id)" type="datetime-local" class="text-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1 mx-auto">
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+    </div>
+
+
+</div>
+
+<script src="assets/js/onemesh-constants-v1.0.0-plain.js"></script>
+<script src="assets/js/onemesh-v2.1.7.min.js"></script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105508594', 'ym');
+
+    ym(105508594, 'init', {ssr:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105508594" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
+</body>
+</html>
+
